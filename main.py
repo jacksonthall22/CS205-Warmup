@@ -1,30 +1,93 @@
+import sql_tests
+
+################# GROUP NOTES #################
+'''
+Write any stuff here that everyone should see!
+--------
+  * ctrl-f for TODO for stuff that still needs doing to be done
+  - Check if the commands are the ones we wanted/
+  correct? or if they should change - LP
+
+
+
+'''
+
+
 ################# CONSTANTS #################
 
-# Set list of commands with their descriptions, functionality of each
-# command is defined in execute()
-# (Basically JSON format: )
+# Set list of commands with their descriptions and subcommands. terminatorRegex can be
+# used to check that the last non-keywords of a command (athlete/sport name, etc) are valid
+# (Basically JSON format: https://en.wikipedia.org/wiki/JSON#Example)
 COMMANDS = {
-    'test': {
-        'description': 'this is a test function',
-        'subCommands': {},
-    },
-    'subCommandsTest': {
-        'description': 'test use of multiple tokens / nested commands',
-        'subCommands': {
-            'testA': {
-                'description': 'execute subcommand A',
-                'subCommands': {},
-            },
-            'testB': {
-                'description': 'execute subcommand B',
-                'subCommands': {
-                    'B1': {
-                        'description': 'execute testB subcommand B1',
-                        'subCommands': {},
+    # 'select atlete by name': {
+    #     'description': 'this is a test function',
+    #     'subcommands': {
+    #         '[a-zA-Z0-9]*': {
+    #             'subcommands': {
+    #                 'sort by':
+    #             }
+    #         }
+    #     },
+    # },
+    'Select': {
+        'description': 'will get athlete/sport data based on nested commands',
+        'subcommands': {
+            'Sport': {
+                'description': 'select Sport data table',
+                'subcommands': {
+                    'Name': {
+                        'description': 'execute Sport subcommand find by name',
+                        'subcommands': None,
                     },
-                    'B2': {
-                        'description': 'execute testB subcommand B2',
-                        'subcommands': {},
+                    'Season': {
+                        'description': 'select Sport Season (summer/winter)',
+                        'subcommands': None,
+                    },
+                    'Type': {
+                        'description': 'select Sport Type (individual/team)',
+                        'subcommands': None,
+                    },
+                },
+            },
+            'Athlete': {
+                'description': 'select Athlete data table',
+                'subcommands': {
+                    'Name': {
+                        'description': 'execute Athlete subcommand find by name',
+                        'subcommands': None,
+                    },
+                    'Age': {
+                        'description': 'execute Athlete subcommand find by age',
+                        'subcommands': None,
+                    },
+                    'Team': {
+                        'description': 'execute Athlete subcommand find by team',
+                        'subcommands': None,
+                    },
+                    'Sex': {
+                        'description': 'execute Athlete subcommand find by sex',
+                        'subcommands': None,
+                    },
+                    'Gold ': {
+                        'description': 'execute Athlete subcommand find by gold medals',
+                        'subcommands': None,
+                    },
+                    'Silver': {
+                        'description': 'execute Athlete subcommand find by silver medals',
+                        'subcommands': None,
+                    },
+                    'Bronze': {
+                        'description': 'execute Athlete subcommand find by bronze medals',
+                        'subcommands': None,
+                    },
+                    'Sport': {
+                        'description': 'execute Athlete subcommand find by sport',
+                        'subcommands': {
+                            'description': '[write description]',
+                            'subcommands': {
+                                
+                            }
+                        },
                     },
                 },
             },
@@ -32,61 +95,180 @@ COMMANDS = {
     },
     'help': {
         'description': 'list available commands',
-        'subCommands': {},
+        'subcommands': None,
     },
     'quit': {
         'description': 'quit this program',
-        'subCommands': {},
+        'subcommands': None,
     },
 }
 
-# Used when recursively printing descriptions of available commands & subCommands
-SPACES_PER_DEPTH = 2
 
-def printCommandsDict(commandDict, depth):
+################# FUNCTIONS #################
+
+def printCommandsDict(commandDict=COMMANDS, depth=1):
     """
         Take a dictionary of commands and print formatted description
         of their functions.
 
         If any command in commandDict has subcommands, make a recursive call
-        to print those commands indented by one more level. Starts at depth = 1
+        to print those commands indented by one more level. Uses COMMANDS dict 
+        and starts at depth 1 by default
     """
 
     # Show initial help message
     if depth == 1:
         print('Help message goes here, enter commands like these ones:')
         print()
-        print('Commands')
-        print('--------')
+        print('┌──────────┐')
+        print('│ COMMANDS │')
+        print('├──────────┘')
 
-    # Print descriptions for all commands
-    for command in commandDict:
-        print(f'{" " * depth * SPACES_PER_DEPTH}{command} : {commandDict[command]["description"]}')
+    # Basically "for command in commandDict", but this allows for "hasnext()"ish functionality
+    commandDictItr = iter(commandDict)
+    while commandDictItr.__length_hint__() > 0:        
+        # Get next key from iterable - next() decreases output of __length_hint__() by 1
+        command = next(commandDictItr)
+
+        # Checks if dictionary has next element - if not print └ instead of ├
+        # Also checks that there isn't another nested layer of │s the bottom of the 
+        # connector should connect to
+        connector = '├╴'
+        if commandDictItr.__length_hint__() == 0 and commandDict[command]['subcommands'] is None:
+            connector = '└╴'
+        
+
+        print('│ ' * (depth-1) + connector + f'{command} : {commandDict[command]["description"]}')
 
         # If there are subcommands, recursive call to print their descriptions
-        if commandDict[command]['subCommands'] != {}:
-            printCommandsDict(commandDict[command]['subCommands'], depth + 1)
+        if commandDict[command]['subcommands'] is not None:
+            printCommandsDict(commandDict[command]['subcommands'], depth+1)
+        # else:
+        #     print('│ ' * (depth-1) + '├╴' + f'{command} : {commandDict[command]["description"]}')
+        #     # print(f'{" " * depth * SPACES_PER_DEPTH}{command} : {commandDict[command]["description"]}')
+
+        #     # If there are subcommands, recursive call to print their descriptions
+        #     if commandDict[command]['subcommands'] is not None:
+        #         printCommandsDict(commandDict[command]['subcommands'], depth + 1)
+
+def displayFirstUnrecognizedToken(cmd, commandDict=COMMANDS, depth=0):
+    """ 
+        TODO: Print error help message showing carot under position of first unrecognized token. 
+
+        Maybe something like this:
+            ——> subCommandsTest testSdkflefj B1 aldkjflskfj
+            Command not recognized:
+                subCommandsTest testSdkflefj B1 aldkjflskfj
+                                ^ invalid token
+            
+        However, shouldn't be used for names/fields/etc that aren't recognized: the following still does a query check for 
+            ——> get athlete by name "name that doesn't exist"
+            No results for athlete "name that doesn't exist"
+
+        Note: The "commandDict=COMMANDS" and "depth=0" are default arguments - see here:
+            https://www.geeksforgeeks.org/default-arguments-in-python/
+        for example:
+            displayFirstUnrecognizedToken('test')
+          = displayFirstUnrecognizedToken('test', COMMANDS, 0)
+    """
+
+    # TODO
+    tokens = cmd.split()
+    correct = True
+    count = 0
+    for token in tokens:
+        if correct is True:
+            #if commandDict[cmd]['subcommands'] is not None:
+            # Ie. if there might be more keywords after this
+            if token in commandDict:
+                count += 1
+            else:
+                correct = False
+
+    if correct is False:
+        print("--->", cmd)
+        print(tokens[count], "is the invalid token")
+    #for token in tokens:
+       # if commandDict[cmd]['subcommands'] is not None:
+            # Ie. if there might be more keywords after this
+         #   pass
+       # if token in commandDict:
+           # pass
 
 def execute(cmd):
-    """ Execute the given command cmd. """
+    """ 
+        Execute the given command cmd. 
+    
+        cmd should be checked against COMMANDS before 
+        execute(cmd) is called to verify it is valid - that way any "errors" in this
+        function are a result of terminatorRegex check, not a result of misused keywords:
+        unknown filenames, athlete names that don't exist, etc. 
+    
+    """
 
     # Do a check to make sure first token in cmd is a valid command
     # (Assert raises AssertionError if expression is False)
-    # Just for testing, error checking should be done before calling execute()
     assert cmd.split()[0] in COMMANDS
 
-    # Split into 'first' and 'everything else' tokens
+    # I just added this b/c in line 164 it couldn't recognize commandDict b/c it wasn't a parameter LP
+    commandDict = COMMANDS
+    
+    # Split into 'first' and 'everything else' tokens as strings
     # Ex. 'gcc -std=gnu99 filename.c' becomes:
     # firstToken = 'gcc'
     # remainingTokens = '-std=gnu99 filename.c'
-    firstToken = cmd.split()[0].lower()
+    firstToken = cmd.split()[0]
     remainingTokens = ' '.join(cmd.split()[1:])
+    if remainingTokens == '' and commandDict[cmd]['terminatorRegex'] is None:
+    # Implement all the commands - query calls go here eventually
+      if firstToken == 'help':
+        printCommandsDict()
+      #elif firstToken == 'Athlete':
+        #print(f'[run test command with remainingTokens = "{remainingTokens}"')
+      elif firstToken == 'Select':
+      # Update first & remaining tokens
+        firstToken = remainingTokens.split()[0]
+        remainingTokens = ' '.join(remainingTokens.split()[1:])
+        if firstToken == 'Athlete':
+            firstToken = cmd.split()[0]
+            remainingTokens = ' '.join(cmd.split()[1:])
+            if firstToken == 'Name':
+                print(f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]')
+            elif firstToken == 'Age':
+                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+            elif firstToken == 'Team':
+                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+            elif firstToken == 'Sex':
+                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+            elif firstToken == 'Age':
+                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+            elif firstToken == 'Gold':
+                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+            elif firstToken == 'Silver':
+                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+            elif firstToken == 'Bronze':
+                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+            else:
+                print('That command hasn\'t been implemented yet.')
+        if firstToken == 'Sport':
+            firstToken = cmd.split()[0]
+            remainingTokens = ' '.join(cmd.split()[1:])
 
-    if firstToken == 'help':
-        printCommandsDict(COMMANDS, 1)
+            if firstToken == 'Name':
+                print(f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]')
 
-    elif firstToken == 'test':
-        print(f'Test command run with remainingTokens = "{remainingTokens}"')
+                remainingTokens = ' '.join(cmd.split()[1:])
+
+            elif firstToken == 'Season':
+                print(f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]')
+
+            elif firstToken == 'Type':
+                print(f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]')
+            else:
+                 print('That command hasn\'t been implemented yet.')
+      else:
+      # 
+        print('That command hasn\'t been implemented yet.')
 
     # elif firstToken == ... etc. continue for all commands
 
@@ -95,7 +277,7 @@ def main():
         # Get command
         cmd = input('Enter a command:\n——> ')
 
-        if cmd == 'quit': 
+        if cmd == 'quit':
             break
 
         # Validate input & make sure first token is a valid command
@@ -103,8 +285,12 @@ def main():
         # ie: 'gcc -std=gnu99 filename.c'.split()[0] 
         #   = ['gcc', '-std=gnu99', 'filename.c'][0] 
         #   = 'gcc'
-        while cmd.split()[0] not in COMMANDS:
-            cmd = input('Invalid command. Enter a command with arguments:\n——> ')
+       # while cmd.split()[0] not in COMMANDS:
+            # TODO - call displayFirstUnrecognizedToken() here and get rid of 
+            # "Invalid command. " in input()
+        displayFirstUnrecognizedToken(cmd)
+        #needs to return false if not recognized and prompt user for another input
+        #cmd = input('Invalid command. Enter a command:\n——> ')
 
         # Main command 
         # Run command

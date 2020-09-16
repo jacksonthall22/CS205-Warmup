@@ -1,12 +1,25 @@
-import sql_tests
+import sql_queries
 
 ################# GROUP NOTES #################
 '''
 Write any stuff here that everyone should see!
 --------
-  * ctrl-f for TODO for stuff that still needs doing to be done
-  - Check if the commands are the ones we wanted/
-  correct? or if they should change - LP
+JH = Jackson
+JW = Jake
+LP = Lauren
+SO = Sarah
+
+Group Notes:
+  - ctrl-f for TODO for stuff that still needs doing to be done - JH
+  - Check if the commands are the ones we wanted/correct? or if 
+    they should change - LP
+  - LP & SO will we want some keywords/syntax/"output mode" to
+    decide how much info from a particular record to display on screen?
+    Maybe two modes: 1 displays all info and 2 displays less, like Name, Age, Sport,
+    Country Code, Golds, Silvers, Bronzes? - JH
+  - Clarification thing: probably no need to ever display a list of 
+    sports that match criteria right? Ex "Select Sport Soccer" I assume
+    still shows a list of athleteS? - JH
 
 
 
@@ -37,7 +50,9 @@ COMMANDS = {
                 'subcommands': {
                     'Name': {
                         'description': 'execute Sport subcommand find by name',
-                        'subcommands': None,
+                        'subcommands': {
+                            '[]': None,
+                        },
                     },
                     'Season': {
                         'description': 'select Sport Season (summer/winter)',
@@ -172,28 +187,38 @@ def displayFirstUnrecognizedToken(cmd, commandDict=COMMANDS, depth=0):
           = displayFirstUnrecognizedToken('test', COMMANDS, 0)
     """
 
-    # TODO
     tokens = cmd.split()
-    correct = True
     count = 0
+    index = 0
+
+    correct = True
     for token in tokens:
-        if correct is True:
-            #if commandDict[cmd]['subcommands'] is not None:
-            # Ie. if there might be more keywords after this
-            if token in commandDict:
-                count += 1
-            else:
+        if count == 0 and correct:
+            if token not in commandDict:
                 correct = False
+            else:
+                count+=1
+        elif count == 1 and correct:
+            if token != "Sport" and token != "Athlete":
+                correct = False
+            else:
+                count+=1
+        elif correct and count == 2:
+            correct = False
+            if tokens[1] == "Sport":
+                sportDictionary = commandDict['Select']['subcommands']['Sport']['subcommands']
+                for key in sportDictionary:
+                    if token == key:
+                        correct = True
+            if tokens[1] == "Athlete":
+                athleteDictionary = commandDict['Select']['subcommands']['Athlete']['subcommands']
+                for key in athleteDictionary:
+                    if token == key:
+                        correct = True
 
     if correct is False:
-        print("--->", cmd)
-        print(tokens[count], "is the invalid token")
-    #for token in tokens:
-       # if commandDict[cmd]['subcommands'] is not None:
-            # Ie. if there might be more keywords after this
-         #   pass
-       # if token in commandDict:
-           # pass
+        print("Invalid command")
+
 
 def execute(cmd):
     """ 
@@ -221,6 +246,7 @@ def execute(cmd):
     remainingTokens = ' '.join(cmd.split()[1:])
     if remainingTokens == '' and commandDict[cmd]['terminatorRegex'] is None:
     # Implement all the commands - query calls go here eventually
+      # if firstToken == 'load data': # TODO: when you uncomment this change 'if' to 'elif' below
       if firstToken == 'help':
         printCommandsDict()
       #elif firstToken == 'Athlete':
@@ -233,7 +259,7 @@ def execute(cmd):
             firstToken = cmd.split()[0]
             remainingTokens = ' '.join(cmd.split()[1:])
             if firstToken == 'Name':
-                print(f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]')
+                print("Age")
             elif firstToken == 'Age':
                 print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
             elif firstToken == 'Team':
@@ -248,20 +274,17 @@ def execute(cmd):
                 print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
             elif firstToken == 'Bronze':
                 print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+            elif firstToken == 'Sport':
+                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
             else:
                 print('That command hasn\'t been implemented yet.')
         if firstToken == 'Sport':
             firstToken = cmd.split()[0]
             remainingTokens = ' '.join(cmd.split()[1:])
-
             if firstToken == 'Name':
                 print(f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]')
-
-                remainingTokens = ' '.join(cmd.split()[1:])
-
             elif firstToken == 'Season':
                 print(f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]')
-
             elif firstToken == 'Type':
                 print(f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]')
             else:

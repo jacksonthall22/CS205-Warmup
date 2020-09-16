@@ -187,34 +187,53 @@ def displayFirstUnrecognizedToken(cmd, commandDict=COMMANDS, depth=0):
           = displayFirstUnrecognizedToken('test', COMMANDS, 0)
     """
 
+    # TODO
     tokens = cmd.split()
     count = 0
     index = 0
 
+    end = False
     correct = True
     for token in tokens:
-        if count == 0 and correct:
-            if token not in commandDict:
+        if end is False:
+            if count == 0 and correct:
+                if token not in commandDict:
+                    correct = False
+                else:
+                    count += 1
+            elif count == 1 and correct:
+                if token != "Sport" and token != "Athlete":
+                    correct = False
+                else:
+                    count+=1
+            elif correct and count == 2:
                 correct = False
-            else:
-                count+=1
-        elif count == 1 and correct:
-            if token != "Sport" and token != "Athlete":
-                correct = False
-            else:
-                count+=1
-        elif correct and count == 2:
-            correct = False
-            if tokens[1] == "Sport":
-                sportDictionary = commandDict['Select']['subcommands']['Sport']['subcommands']
-                for key in sportDictionary:
-                    if token == key:
-                        correct = True
-            if tokens[1] == "Athlete":
-                athleteDictionary = commandDict['Select']['subcommands']['Athlete']['subcommands']
-                for key in athleteDictionary:
-                    if token == key:
-                        correct = True
+                if tokens[1] == "Sport":
+                    sportDictionary = commandDict['Select']['subcommands']['Sport']['subcommands']
+                    for key in sportDictionary:
+                        if token == key:
+                            correct = True
+                            end = True
+                if tokens[1] == "Athlete":
+                    athleteDictionary = commandDict['Select']['subcommands']['Athlete']['subcommands']
+                    for key in athleteDictionary:
+                        if token == "Sport":
+                            sportDictionary = commandDict['Select']['subcommands']['Sport']['subcommands']
+                            for word in tokens:
+                                for key in sportDictionary:
+                                    if word == key:
+                                        dictionary = sportDictionary[word]
+                                        if dictionary['subcommands'] is None:
+                                            correct = True
+                                            end = True
+                                    else:
+                                        correct = True
+                                        end = True
+                        if token == key:
+                            correct = True
+                            end = True
+
+
 
     if correct is False:
         print("Invalid command")

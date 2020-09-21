@@ -50,9 +50,7 @@ COMMANDS = {
                 'subcommands': {
                     'Name': {
                         'description': 'execute Sport subcommand find by name',
-                        'subcommands': {
-                            '[]': None,
-                        },
+                        'subcommands': None,
                     },
                     'Season': {
                         'description': 'select Sport Season (summer/winter)',
@@ -97,12 +95,7 @@ COMMANDS = {
                     },
                     'Sport': {
                         'description': 'execute Athlete subcommand find by sport',
-                        'subcommands': {
-                            'description': '[write description]',
-                            'subcommands': {
-                                
-                            }
-                        },
+                        'subcommands': None,
                     },
                 },
             },
@@ -136,7 +129,7 @@ def printCommandsDict(commandDict=COMMANDS, depth=1):
         print('Help message goes here, enter commands like these ones:')
         print()
         print('┌──────────┐')
-        print('│ COMMANDS │')
+        print('│ COMMANDS │')  
         print('├──────────┘')
 
     # Basically "for command in commandDict", but this allows for "hasnext()"ish functionality
@@ -152,7 +145,6 @@ def printCommandsDict(commandDict=COMMANDS, depth=1):
         if commandDictItr.__length_hint__() == 0 and commandDict[command]['subcommands'] is None:
             connector = '└╴'
         
-
         print('│ ' * (depth-1) + connector + f'{command} : {commandDict[command]["description"]}')
 
         # If there are subcommands, recursive call to print their descriptions
@@ -190,22 +182,27 @@ def displayFirstUnrecognizedToken(cmd, commandDict=COMMANDS, depth=0):
     # TODO
     tokens = cmd.split()
     count = 0
-    index = 0
-
     end = False
     correct = True
+    # Looks through key word dictionary and verifies user input is valid
     for token in tokens:
+      # When there are still keywords left in user input
         if end is False:
+          # If user input is still valid (correct) and token is the first word in list
             if count == 0 and correct:
+                # if user input is not a key word
                 if token not in commandDict:
                     correct = False
                 else:
                     count += 1
+            # while user input is still correct and token is second word in list
             elif count == 1 and correct:
+              # checks if token is not Sport or Athlete key word
                 if token != "Sport" and token != "Athlete":
                     correct = False
                 else:
                     count+=1
+            # while user input is still correct, verfies rest of user string
             elif correct and count == 2:
                 correct = False
                 if tokens[1] == "Sport":
@@ -263,7 +260,8 @@ def execute(cmd):
     # remainingTokens = '-std=gnu99 filename.c'
     firstToken = cmd.split()[0]
     remainingTokens = ' '.join(cmd.split()[1:])
-    if remainingTokens == '' and commandDict[cmd]['terminatorRegex'] is None:
+
+    if remainingTokens == '' and commandDict[cmd]['subcommands'] is None:
     # Implement all the commands - query calls go here eventually
       # if firstToken == 'load data': # TODO: when you uncomment this change 'if' to 'elif' below
       if firstToken == 'help':

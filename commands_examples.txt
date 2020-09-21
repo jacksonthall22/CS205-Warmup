@@ -1,0 +1,82 @@
+# Final Syntax:
+    select <Athlete/Sport> <field1>="x" [, <field2>="y"]
+
+# Example Input:
+    select Athelte age="30" sport="skiing"
+    select Sport sport="skiing"
+    select Athlete sport="golf" season
+
+# Example Output for above:
+    ┌──────────┐
+    │ Athletes │
+    ├──────────┘
+    ├╴Miclael Felpskdlskfjs
+    │ ├╴Sport: swimming
+    │ ├╴Age: 30
+    │ ├╴Country: United States of America
+    │ ├╴etc...
+    
+# Example SQL Output:
+    SELECT * FROM tblAthlete WHERE (age=30 && sport="skiing")
+
+# Dictionary passed to executeSQL() example (only contains fields user specified):
+    fieldsDict = {
+        'table': 'Sport' or 'Athlete',
+        'age': 30,
+        'name': 'Miclael Felpskdlskfja'
+    }
+
+================================================
+
+# validate int fields
+cmdList = cmd.split()
+
+# ['select', 'Athlete', 'gold=3', 'name="Miclael Felpskdlskfja"']
+
+
+
+for token in cmdList:
+    if <field1> in token:
+        # do something
+    
+
+
+
+
+load
+
+Sport
+-Name
+-Season
+-Type
+
+Athlete
+-Name
+-Age
+-Team
+-Sex
+-Gold
+-Silver
+-Bronze
+-Sport
+
+
+==========================
+
+
+
+def parseUserInput(cmd):
+    """cmd is a string"""
+    
+    parsedOutput = []
+
+    if '"' in cmd:
+        # there is a " somewhere in the query, parse char by char
+
+        for charIndex in range(len(cmd)):
+            if char == '=':
+                try:
+                    if cmd[charIndex+1] == '"':
+                        
+                except ValueError:
+                    continue

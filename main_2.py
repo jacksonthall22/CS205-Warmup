@@ -99,6 +99,7 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
             displayFirstUnrecognizedToken('test')
           = displayFirstUnrecognizedToken('test', COMMANDS, 0)
     """
+    # still buggy, but almost works - LP
     changed = False
     index = 0
     for letter in cmd:
@@ -107,15 +108,16 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
                 cmd = cmd[:index] + ' ' + cmd[index:]
                 index += 1
                 changed = True
-            if cmd[index + 2] != " " and not changed:
-                cmd = cmd[:index + 2] + ' ' + cmd[index + 2:]
-                index += 1
+            if not changed:
+                if cmd[index + 2] != " ":
+                    cmd = cmd[:index + 2] + ' ' + cmd[index + 2:]
+                    index += 1
             elif cmd[index + 1] != " ":
                 cmd = cmd[:index + 1] + ' ' + cmd[index + 1:]
                 index += 1
         changed = False
         index += 1
-
+    print (cmd)
 
     # TODO
     if (len(cmd.split()) > 1):
@@ -157,9 +159,7 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
                               if letter == '"':
                                   ct += 1
                           if ct != 2:
-                              correct = False
-
-# spacing issue: Select Athlete Sport="Swimming" 
+                              correct = False 
 
           if tokens[1] == "Athlete":
               athleteList = commandDict['Select']['Athlete']

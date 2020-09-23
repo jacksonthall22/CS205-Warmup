@@ -32,7 +32,7 @@ Group Notes:
 # (Basically JSON format: https://en.wikipedia.org/wiki/JSON#Example)
 FLAGS = {
     'Select': {
-     # 'description' : 'test?'
+      'description' : 'test?',
         'Athlete': ['Name', 'Age', 'Sex', 'Gold', 'Silver', 'Bronze', 'Team', 'Sport'],
         'Sport': ['Name', 'Season']
     },
@@ -49,44 +49,34 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
         Take a dictionary of commands and print formatted description
         of their functions.
 
-        If any command in commandDict has subcommands, make a recursive call
-        to print those commands indented by one more level. Uses COMMANDS dict
-        and starts at depth 1 by default
     """
 
     # Show initial help message
-    if depth == 1:
-        print('Help message goes here, enter commands like these ones in this format -- select <Athlete/Sport> <field1>="x" [, <field2>="y"]: --')
-        print()
-        print('┌──────────┐')
-        print('│ COMMANDS │')
-        print('├──────────┘')
+    print('Help message goes here, enter commands like these ones in this format -- select <Athlete/Sport> <field1>="x" [, <field2>="y"]: --')
+    print()
+    print('┌──────────┐')
+    print('│ COMMANDS │')
+    print('├──────────┘')
 
-    # Basically "for command in commandDict", but this allows for "hasnext()"ish functionality
-    commandDictItr = iter(commandDict)
-    while commandDictItr.__length_hint__() > 0:
-        # Get next key from iterable - next() decreases output of __length_hint__() by 1
-        command = next(commandDictItr)
+    print('Select -- will get athlete/sport data based on nested commands')
+    print('-Sport -- select Sport data table')
+    print('----Name -- execute Sport subcommand find by name')
+    print('----Season -- select sport season - winter/summer')
+    print('----Type -- select sport type - (individual/team)')
+    print('-Athlete -- select Athlete data table')
+    print('----Name -- execute Athlete subcommand find by name)')
+    print('----Age -- execute Athlete subcommand find by age')
+    print('----Team -- execute Athlete subcommand find by Team, the country an athelte represents')
+    print('----Sex -- execute Athlete subcommand find by sex')
+    print('----Gold -- execute Athlete subcommand find by gold medals')
+    print('----Silver -- execute Athlete subcommand find by silver medals')
+    print('----Bronze -- execute Athlete subcommand find by bronze medals')
 
-        # Checks if dictionary has next element - if not print └ instead of ├
-        # Also checks that there isn't another nested layer of │s the bottom of the
-        # connector should connect to
-        connector = '├╴'
-        if commandDictItr.__length_hint__() == 0 and commandDict[command]['subcommands'] is None:
-            connector = '└╴'
+    print('Example commands: ')
+    print('Select Sport = "skiing"')
+    print('Select Athlete Gold = 3')
 
-        print('│ ' * (depth - 1) + connector + f'{command}   : {commandDict[command]["description"]}')
-
-        # If there are subcommands, recursive call to print their descriptions
-        if commandDict[command]['subcommands'] is not None:
-            printCommandsDict(commandDict[command]['subcommands'], depth + 1)
-        # else:
-        #     print('│ ' * (depth-1) + '├╴' + f'{command} : {commandDict[command]["description"]}')
-        #     # print(f'{" " * depth * SPACES_PER_DEPTH}{command} : {commandDict[command]["description"]}')
-
-        #     # If there are subcommands, recursive call to print their descriptions
-        #     if commandDict[command]['subcommands'] is not None:
-        #         printCommandsDict(commandDict[command]['subcommands'], depth + 1)
+    #new print statements
 
 
 def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
@@ -109,67 +99,87 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
             displayFirstUnrecognizedToken('test')
           = displayFirstUnrecognizedToken('test', COMMANDS, 0)
     """
+    changed = False
+    index = 0
+    for letter in cmd:
+        if letter == "=":
+            if cmd[index+1] != " ":
+                cmd = cmd[:index] + ' ' + cmd[index:]
+                index += 1
+                changed = True
+            if cmd[index + 2] != " " and not changed:
+                cmd = cmd[:index + 2] + ' ' + cmd[index + 2:]
+                index += 1
+            elif cmd[index + 1] != " ":
+                cmd = cmd[:index + 1] + ' ' + cmd[index + 1:]
+                index += 1
+        changed = False
+        index += 1
+
 
     # TODO
-    if (cmd != "help" or cmd != "Quit" or cmd != "Load"):
+    if (len(cmd.split()) > 1):
       tokens = cmd.split()
-      count = 0
-      correct = True
+    else:
+      tokens = cmd
+    count = 0
+    correct = True
+
       # Looks through key word dictionary and verifies user input is valid
-      for token in tokens:
-        ct = 0
+    for token in tokens:
+      ct = 0
         # If user input is still valid (correct) and token is the first word in list
-        if count == 0 and correct:
+      if count == 0 and correct:
             # if user input is not a key word
-            if token not in commandDict:
-                correct = False
-            else:
-                count += 1
+          if token not in commandDict:
+              correct = False
+          else:
+              count += 1
         # while user input is still correct and token is second word in list
-        elif count == 1 and correct:
+      elif count == 1 and correct:
             # checks if token is not Sport or Athlete key word
-            if token != "Sport" and token != "Athlete":
-                correct = False
-            else:
-                count += 1
+          if token != "Sport" and token != "Athlete":
+              correct = False
+          else:
+              count += 1
         # while user input is still correct, verfies rest of user string
 
         # Just added this part, but it's a little buggy still - LP
-        elif correct and count == 2:
-            if tokens[1] == "Sport":
-                sportList = commandDict['Select']['Sport']
-                for key in sportList:
-                    if token == key:
-                        index = tokens.index(token)
-                        if tokens[index + 1] == "=":
-                            searchWord = tokens[index + 2]
-                            for letter in searchWord:
-                                if letter == '"':
-                                    ct += 1
-                            if ct != 2:
-                                correct = False
+      elif correct and count == 2:
+          if tokens[1] == "Sport":
+              sportList = commandDict['Select']['Sport']
+              for key in sportList:
+                  if token == key:
+                      index = tokens.index(token)
+                      if tokens[index + 1] == "=":
+                          searchWord = tokens[index + 2]
+                          for letter in searchWord:
+                              if letter == '"':
+                                  ct += 1
+                          if ct != 2:
+                              correct = False
 
 # spacing issue: Select Athlete Sport="Swimming" 
 
-            if tokens[1] == "Athlete":
-                athleteList = commandDict['Select']['Athlete']
-                for key in athleteList:
-                    if token == key:
-                        index = tokens.index(token)
-                        if tokens[index+1] == "=":
-                            if token == "Age" or token == "Gold" or token == "Silver" or token == "Bronze":
-                                userInput = tokens[index+2]
-                                try:
-                                    value = int(userInput)
-                                except ValueError:
-                                    correct = False
-                            else:
-                                searchWord = tokens[index+2]
-                                for letter in searchWord:
-                                    if letter == '"':
-                                        ct+=1
-                                if ct != 2:
-                                    correct = False
+          if tokens[1] == "Athlete":
+              athleteList = commandDict['Select']['Athlete']
+              for key in athleteList:
+                  if token == key:
+                      index = tokens.index(token)
+                      if tokens[index+1] == "=":
+                          if token == "Age" or token == "Gold" or token == "Silver" or token == "Bronze":
+                              userInput = tokens[index+2]
+                              try:
+                                  value = int(userInput)
+                              except ValueError:
+                                  correct = False
+                          else:
+                              searchWord = tokens[index+2]
+                              for letter in searchWord:
+                                  if letter == '"':
+                                      ct+=1
+                              if ct != 2:
+                                  correct = False
     if correct is False:
         print("Invalid command")
 

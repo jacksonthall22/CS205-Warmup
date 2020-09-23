@@ -55,7 +55,7 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
 
     # Show initial help message
     if depth == 1:
-        print('Help message goes here, enter commands like these ones:')
+        print('Help message goes here, enter commands like these ones in this format -- select <Athlete/Sport> <field1>="x" [, <field2>="y"]: --')
         print()
         print('┌──────────┐')
         print('│ COMMANDS │')
@@ -74,7 +74,7 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
         if commandDictItr.__length_hint__() == 0 and commandDict[command]['subcommands'] is None:
             connector = '└╴'
 
-        print('│ ' * (depth - 1) + connector + f'{command} : {commandDict[command]["description"]}')
+        print('│ ' * (depth - 1) + connector + f'{command}   : {commandDict[command]["description"]}')
 
         # If there are subcommands, recursive call to print their descriptions
         if commandDict[command]['subcommands'] is not None:

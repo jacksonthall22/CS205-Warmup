@@ -32,6 +32,7 @@ Group Notes:
 # (Basically JSON format: https://en.wikipedia.org/wiki/JSON#Example)
 FLAGS = {
     'Select': {
+     # 'description' : 'test?'
         'Athlete': ['Name', 'Age', 'Sex', 'Gold', 'Silver', 'Bronze', 'Team', 'Sport'],
         'Sport': ['Name', 'Season']
     },
@@ -110,11 +111,12 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
     """
 
     # TODO
-    tokens = cmd.split()
-    count = 0
-    correct = True
-    # Looks through key word dictionary and verifies user input is valid
-    for token in tokens:
+    if (cmd != "help" or cmd != "Quit" or cmd != "Load"):
+      tokens = cmd.split()
+      count = 0
+      correct = True
+      # Looks through key word dictionary and verifies user input is valid
+      for token in tokens:
         ct = 0
         # If user input is still valid (correct) and token is the first word in list
         if count == 0 and correct:
@@ -147,7 +149,7 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
                             if ct != 2:
                                 correct = False
 
-
+# spacing issue: Select Athlete Sport="Swimming" 
 
             if tokens[1] == "Athlete":
                 athleteList = commandDict['Select']['Athlete']
@@ -185,7 +187,7 @@ def execute(cmd):
 
     # Do a check to make sure first token in cmd is a valid command
     # (Assert raises AssertionError if expression is False)
-    assert cmd.split()[0] in FLAGS
+    #assert cmd.split()[0] in FLAGS
 
     # I just added this b/c in line 164 it couldn't recognize commandDict b/c it wasn't a parameter LP
     commandDict = FLAGS
@@ -197,7 +199,7 @@ def execute(cmd):
     firstToken = cmd.split()[0]
     remainingTokens = ' '.join(cmd.split()[1:])
 
-    if remainingTokens == '' and commandDict[cmd]['subcommands'] is None:
+    if remainingTokens == '':
         # Implement all the commands - query calls go here eventually
         # if firstToken == 'load data': # TODO: when you uncomment this change 'if' to 'elif' below
         if firstToken == 'help':

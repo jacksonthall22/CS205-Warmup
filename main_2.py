@@ -100,30 +100,42 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
           = displayFirstUnrecognizedToken('test', COMMANDS, 0)
     """
     # still buggy, but almost works - LP
-    changed = False
+    # Adds spacing to user input after and before "=" if not there
+    found = False
     index = 0
-    for letter in cmd:
-        if letter == "=":
-            if cmd[index+1] != " ":
-                cmd = cmd[:index] + ' ' + cmd[index:]
-                index += 1
-                changed = True
-            if not changed:
-                if cmd[index + 2] != " ":
-                    cmd = cmd[:index + 2] + ' ' + cmd[index + 2:]
-                    index += 1
-            elif cmd[index + 1] != " ":
-                cmd = cmd[:index + 1] + ' ' + cmd[index + 1:]
-                index += 1
-        changed = False
-        index += 1
-    print (cmd)
+    first = True
+    cmd2 = ""
+    correct = True
+    try:
+        while not found:
+            if (cmd.find("=") == -1 and first):
+                found = True
+                cmd2 = cmd
+            elif (cmd.find("=") == -1):
+                cmd2 = cmd2 + cmd
+                found = True
+            else:
+                first = False
+                index = cmd.find("=")
+                if cmd[index-1] != " ":
+                    cmd = cmd[:index] + ' ' + cmd[index:]
+                    index+=1
+                if cmd[index + 1] != " ":
+                    cmd = cmd[:index + 1] + ' ' + cmd[index + 1:]
+                cmd2 = cmd2 + cmd[:index + 2]
+                if (cmd.find("=") == -1):
+                    cmd = cmd[index + 2:len(cmd)]
+                else:
+                    cmd = cmd[index + 2:]
+    except IndexError:
+        correct = False
+    print(cmd2)
 
     # TODO
-    if (len(cmd.split()) > 1):
-      tokens = cmd.split()
+    if (len(cmd2.split()) > 1):
+      tokens = cmd2.split()
     else:
-      tokens = cmd
+      tokens = cmd2
     count = 0
     correct = True
 

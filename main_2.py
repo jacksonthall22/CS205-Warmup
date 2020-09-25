@@ -10,6 +10,7 @@ LP = Lauren
 SO = Sarah
 
 Group Notes:
+-talk to lauren about how shes sending over validated - SO
   - ctrl-f for TODO for stuff that still needs doing to be done - JH
   - Check if the commands are the ones we wanted/correct? or if 
     they should change - LP
@@ -30,9 +31,11 @@ Group Notes:
 # Set list of commands with their descriptions and subcommands. terminatorRegex can be
 # used to check that the last non-keywords of a command (athlete/sport name, etc) are valid
 # (Basically JSON format: https://en.wikipedia.org/wiki/JSON#Example)
+
+# import sql_queries.py
+
 FLAGS = {
     'Select': {
-      'description' : 'test?',
         'Athlete': ['Name', 'Age', 'Sex', 'Gold', 'Silver', 'Bronze', 'Team', 'Sport'],
         'Sport': ['Name', 'Season']
     },
@@ -40,6 +43,8 @@ FLAGS = {
     'Help': 'Displays Menu',
     'Load': 'Loads data',
 }
+
+VALIDATED = True
 
 
 ################# FUNCTIONS #################
@@ -52,7 +57,7 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
     """
 
     # Show initial help message
-    print('Help message goes here, enter commands like these ones in this format -- select <Athlete/Sport> <field1>="x" [, <field2>="y"]: --')
+    print('Help message goes here, enter commands like these ones in this format -- select <Athlete/Sport> <field1>="x" [, <field2>="y"]: -- with strings in "quotes" and ints without')
     print()
     print('┌──────────┐')
     print('│ COMMANDS │')
@@ -76,7 +81,7 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
     print('Select Sport = "skiing"')
     print('Select Athlete Gold = 3')
 
-    #new print statements
+    #new print statements    
 
 
 def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
@@ -100,12 +105,15 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
           = displayFirstUnrecognizedToken('test', COMMANDS, 0)
     """
     # still buggy, but almost works - LP
-    # Adds spacing to user input after and before "=" if not there
+    # Adds spacing to user input after and before "=" if not there so tokens list for validation is correct
+    VALIDATED = True
     found = False
     index = 0
     first = True
     cmd2 = ""
     correct = True
+    found = False
+
     try:
         while not found:
             if (cmd.find("=") == -1 and first):
@@ -143,6 +151,11 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
     for token in tokens:
       ct = 0
         # If user input is still valid (correct) and token is the first word in list
+      if len(tokens) > 2:
+        if tokens[2] == "=":
+            correct = False
+      if cmd2.find("=") == -1:
+          correct = False
       if count == 0 and correct:
             # if user input is not a key word
           if token not in commandDict:
@@ -159,44 +172,60 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
         # while user input is still correct, verfies rest of user string
 
         # Just added this part, but it's a little buggy still - LP
+
       elif correct and count == 2:
+          correctCount = -1
           if tokens[1] == "Sport":
               sportList = commandDict['Select']['Sport']
               for key in sportList:
-                  if token == key:
-                      index = tokens.index(token)
+                  index = tokens.index(token)
+                  if index != len(tokens) - 1:
                       if tokens[index + 1] == "=":
-                          searchWord = tokens[index + 2]
-                          for letter in searchWord:
-                              if letter == '"':
-                                  ct += 1
-                          if ct != 2:
-                              correct = False 
+                          if token == key:
+                              correctCount += 1
+                              correct = True
+                              searchWord = tokens[index + 2]
+                              for letter in searchWord:
+                                  if letter == '"':
+                                      ct += 1
+                              if ct != 2:
+                                  correct = False
+                          elif correctCount != 0:
+                              correct = False
 
+          correctCount = -1
           if tokens[1] == "Athlete":
               athleteList = commandDict['Select']['Athlete']
               for key in athleteList:
-                  if token == key:
-                      index = tokens.index(token)
-                      if tokens[index+1] == "=":
-                          if token == "Age" or token == "Gold" or token == "Silver" or token == "Bronze":
-                              userInput = tokens[index+2]
-                              try:
-                                  value = int(userInput)
-                              except ValueError:
-                                  correct = False
-                          else:
-                              searchWord = tokens[index+2]
-                              for letter in searchWord:
-                                  if letter == '"':
-                                      ct+=1
-                              if ct != 2:
-                                  correct = False
+                  index = tokens.index(token)
+                  if index != len(tokens) - 1:
+                      if tokens[index + 1] == "=":
+                          if token == key:
+                                  correctCount += 1
+                                  correct = True
+                                  if token == "Age" or token == "Gold" or token == "Silver" or token == "Bronze":
+                                      userInput = tokens[index+2]
+                                      try:
+                                          value = int(userInput)
+                                      except ValueError:
+                                          correct = False
+                                  else:
+                                      searchWord = tokens[index+2]
+                                      for letter in searchWord:
+                                          if letter == '"':
+                                              ct+=1
+                                      if ct != 2:
+                                          correct = False
+                          elif correctCount != 0:
+                              correct = False
+
+
     if correct is False:
+        VALIDATED = False
         print("Invalid command")
+    return tokens
 
-
-def execute(cmd):
+def execute(cmd, commandDict=FLAGS):
     """
         Execute the given command cmd.
 
@@ -205,6 +234,7 @@ def execute(cmd):
         function are a result of terminatorRegex check, not a result of misused keywords:
         unknown filenames, athlete names that don't exist, etc.
 
+    
     """
 
     # Do a check to make sure first token in cmd is a valid command
@@ -212,14 +242,50 @@ def execute(cmd):
     #assert cmd.split()[0] in FLAGS
 
     # I just added this b/c in line 164 it couldn't recognize commandDict b/c it wasn't a parameter LP
-    commandDict = FLAGS
+    # Added as default parameter - JH
+    # commandDict = FLAGS
 
-    # Split into 'first' and 'everything else' tokens as strings
-    # Ex. 'gcc -std=gnu99 filename.c' becomes:
-    # firstToken = 'gcc'
-    # remainingTokens = '-std=gnu99 filename.c'
-    firstToken = cmd.split()[0]
-    remainingTokens = ' '.join(cmd.split()[1:])
+    # Split on spaces only
+    # ex: ['Select', 'Athlete', 'age=21', 'sport=skiing']
+    
+    
+    #cmdTokens = cmd.split()
+
+   # for token in cmdTokens:
+    #  if token not in 
+
+
+    # changed but I think it will work - JW
+    firstToken = cmd[0]
+    cmdCopy = cmd
+    cmdCopy.remove(firstToken)
+    remainingTokens = cmdCopy
+
+    #converting into a dictionary
+    testList = ['Select','Sport', 'Swimming', 'Gold', '=', '3']
+    testList.remove('Select')
+
+    testDict = {'table': testList[0]}
+    #range (0, len(testList)-1):
+
+#break by = 
+    for index, item in enumerate(testList) :
+        if list(testList)[-1]:
+            break
+        testDict[item] = testList[index + 1]
+        
+        #talk to lauren about how shes sending over validated - SO
+        
+
+
+    
+    
+   
+   #dict = {'table': testList[0]}
+    #it = iter(testList)
+    #testDict = dict(zip(it, it))
+    print(testDict)
+    
 
     if remainingTokens == '':
         # Implement all the commands - query calls go here eventually
@@ -274,8 +340,10 @@ def execute(cmd):
 
 
 def main():
+
     while True:
         # Get command
+
         cmd = input('Enter a command:\n——> ')
 
         if cmd == 'quit':
@@ -289,13 +357,18 @@ def main():
         # while cmd.split()[0] not in COMMANDS:
         # TODO - call displayFirstUnrecognizedToken() here and get rid of
         # "Invalid command. " in input()
-        displayFirstUnrecognizedToken(cmd)
+        tokensList = displayFirstUnrecognizedToken(cmd)
+        print(tokensList)
         # needs to return false if not recognized and prompt user for another input
         # cmd = input('Invalid command. Enter a command:\n——> ')
 
         # Main command
         # Run command
-        execute(cmd)
+       
+        #make test list thats already "validated"
+
+        # if VALIDATED:
+        execute(tokensList)
 
         print()
 

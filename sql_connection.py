@@ -13,7 +13,6 @@ def main():
     read_olympic_data = pd.read_csv(r'OlympicDataSet.csv')
     read_olympic_data.to_sql('ATHELETES', conn, if_exists='append', index=False)
 
-
     # These print out our two tables as proof
     df = DataFrame(c.execute(''' SELECT * from ATHELETES'''))
     print(df)

@@ -316,33 +316,36 @@ def execute(cmd, commandDict=FLAGS):
     # changed but I think it will work - JW
     firstToken = cmd[0]
     cmdCopy = cmd
-    cmdCopy.remove(firstToken)
+    #cmdCopy.remove(firstToken)
     remainingTokens = cmdCopy
 
-    #converting into a dictionary
-    testList = ['Select','Sport', 'Swimming', 'Gold', '=', '3']
-    testList.remove('Select')
+    tokensDict = {}
 
-    testDict = {'table': testList[0]}
-    #range (0, len(testList)-1):
-
-#break by = 
-    for index, item in enumerate(testList) :
-        if list(testList)[-1]:
-            break
-        testDict[item] = testList[index + 1]
-        
-        #talk to lauren about how shes sending over validated - SO
-        
+    for token in remainingTokens:
+        for index, item in enumerate(remainingTokens):
+            if item == "Select":
+                tokensDict["table"] =  remainingTokens[index+1]
+            elif item == '=':
+                tokensDict[remainingTokens[index-1]] = remainingTokens[index+1]
+            #elif list(remainingTokens)[-1]:
+            #     break
+            #tokensDict[item] = remainingTokens[index]
 
 
+            #if token.contains("="):
+                #remainingTokens = token.split("=")
+                
+                #remaningTokens[]
+                
     
-    
-   
-   #dict = {'table': testList[0]}
-    #it = iter(testList)
-    #testDict = dict(zip(it, it))
-    print(testDict)
+            
+            
+
+    print(tokensDict)
+
+    tokensDict = {'table': cmd[1]}
+
+    #print(tokensDict)
     
 
     if remainingTokens == '':

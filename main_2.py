@@ -1,5 +1,3 @@
-
-
 ################# GROUP NOTES #################
 '''
 Write any stuff here that everyone should see!
@@ -36,8 +34,9 @@ Group Notes:
 
 FLAGS = {
     'Select': {
-        'Athlete': ['Name', 'Age', 'Sex', 'Gold', 'Silver', 'Bronze', 'Team', 'Sport'],
-        'Sport': ['Name', 'Season','Type']
+        'Athlete':
+        ['Name', 'Age', 'Sex', 'Gold', 'Silver', 'Bronze', 'Team', 'Event'],
+        'Sport': ['Name', 'Season', 'Type']
     },
     'Quit': 'Quits program',
     'Help': 'Displays Menu',
@@ -46,8 +45,8 @@ FLAGS = {
 
 VALIDATED = True
 
-
 ################# FUNCTIONS #################
+
 
 def printCommandsDict(commandDict=FLAGS, depth=1):
     """
@@ -57,7 +56,9 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
     """
 
     # Show initial help message
-    print('Help message goes here, enter commands like these ones in this format -- select <Athlete/Sport> <field1>="x" [, <field2>="y"]: -- with strings in "quotes" and ints without')
+    print(
+        'Help message goes here, enter commands like these ones in this format -- select <Athlete/Sport> <field1>="x" [, <field2>="y"]: -- with strings in "quotes" and ints without'
+    )
     print()
     print('┌──────────┐')
     print('│ COMMANDS │')
@@ -70,8 +71,11 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
     print('----Type -- select sport type - (individual/team)')
     print('-Athlete -- select Athlete data table')
     print('----Name -- execute Athlete subcommand find by name)')
+    print('----Event -- execute Athlete subcommand find by athlete event competed')
     print('----Age -- execute Athlete subcommand find by age')
-    print('----Team -- execute Athlete subcommand find by Team, the country an athelte represents')
+    print(
+        '----Team -- execute Athlete subcommand find by Team, the country an athelte represents'
+    )
     print('----Sex -- execute Athlete subcommand find by sex')
     print('----Gold -- execute Athlete subcommand find by gold medals')
     print('----Silver -- execute Athlete subcommand find by silver medals')
@@ -81,144 +85,132 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
     print('Select Sport = "skiing"')
     print('Select Athlete Gold = 3')
 
-    #new print statements    
+    #new print statements
 
 
 def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
-    """
-        TODO: Print error help message showing carot under position of first unrecognized token.
-
-        Maybe something like this:
-            ——> subCommandsTest testSdkflefj B1 aldkjflskfj
-            Command not recognized:
-                subCommandsTest testSdkflefj B1 aldkjflskfj
-                                ^ invalid token
-
-        However, shouldn't be used for names/fields/etc that aren't recognized: the following still does a query check for
-            ——> get athlete by name "name that doesn't exist"
-            No results for athlete "name that doesn't exist"
-
-        Note: The "commandDict=COMMANDS" and "depth=0" are default arguments - see here:
-            https://www.geeksforgeeks.org/default-arguments-in-python/
-        for example:
-            displayFirstUnrecognizedToken('test')
-          = displayFirstUnrecognizedToken('test', COMMANDS, 0)
-    """
-    # Variables
-    VALIDATED = True
-    index = 0
-    first = True
-    cmd2 = ""
-    correct = True
-    found = False
-    sportsTime = False
+  # Variables
+  global VALIDATED
+  VALIDATED = True
+  index = 0
+  first = True
+  cmd2 = ""
+  correct = True
+  found = False
+  sportsTime = False
 
     # Adds spacing to user input after and before "=" if not there so tokens list for validation is correct
-    try:
-        while not found:
+  try:
+      while not found:
             # If there is no "=" and it is the first time cmd string is checked, set cmd2 to cmd
-            if (cmd.find("=") == -1 and first):
-                found = True
-                cmd2 = cmd
+          if (cmd.find("=") == -1 and first):
+              found = True
+              cmd2 = cmd
             # else if there is no "=" left in cmd string, set cmd2 = cmd
-            elif (cmd.find("=") == -1):
-                cmd2 = cmd2 + cmd
-                found = True
+          elif (cmd.find("=") == -1):
+              cmd2 = cmd2 + cmd
+              found = True
             # else there are "=" left in cmd string to be split
-            else:
-                first = False
+          else:
+              first = False
                 # find the index of "=" in string
-                index = cmd.find("=")
+              index = cmd.find("=")
                 # if there is no space before "=", add one
-                if cmd[index-1] != " ":
-                    cmd = cmd[:index] + ' ' + cmd[index:]
-                    index+=1
+              if cmd[index - 1] != " ":
+                  cmd = cmd[:index] + ' ' + cmd[index:]
+                  index += 1
                 # if there is no space after "=", add one
-                if cmd[index + 1] != " ":
-                    cmd = cmd[:index + 1] + ' ' + cmd[index + 1:]
-                # put string back together 
-                cmd2 = cmd2 + cmd[:index + 2]
+              if cmd[index + 1] != " ":
+                  cmd = cmd[:index + 1] + ' ' + cmd[index + 1:]
+                # put string back together
+              cmd2 = cmd2 + cmd[:index + 2]
                 # if there are no more "=" left in cmd, go to very end of cmd and get rest of string
-                if (cmd.find("=") == -1):
-                    cmd = cmd[index + 2:len(cmd)]
+              if (cmd.find("=") == -1):
+                  cmd = cmd[index + 2:len(cmd)]
                 # Else re assign cmd to rest of string
-                else:
-                    cmd = cmd[index + 2:]
-    except IndexError:
-        correct = False
-    print(cmd2)
+              else:
+                  cmd = cmd[index + 2:]
+  except IndexError:
+      correct = False
+  print(cmd2)
 
     # if length of user input is longer than one word, split by spaces and assign to tokens list
-    if (len(cmd2.split()) > 1):
+  if (len(cmd2.split()) > 1):
       tokens = cmd2.split()
-    else:
-    # else assign tokens to word
+  else:
+        # else assign tokens to word
       tokens = cmd2
-    count = 0
-    correct = True
+  count = 0
+  correct = True
 
-      # Looks through key word dictionary and verifies user input is valid
-    for token in tokens:
-      ct = 0
+    # Looks through key word dictionary and verifies user input is valid
+  for token in tokens:
+    ct = 0
         # If user input is still valid (correct) and token is the first word in list
-      if len(tokens) > 2:
-        if tokens[2] == "=":
-            correct = False
-      if cmd2.find("=") == -1:
+    if len(tokens) > 2:
+      if tokens[2] == "=":
+        correct = False
+    if cmd2.find("=") == -1:
+      correct = False
+    if count == 0 and correct:
+      # if user input is not a key word
+      if token not in commandDict:
+        correct = False
+      else:
+        count += 1
+        # if user input is still correct and token is second word in list
+    elif count == 1 and correct:
+        # checks if token is not Sport or Athlete key word
+      if token != "Sport" and token != "Athlete":
           correct = False
-      if count == 0 and correct:
-            # if user input is not a key word
-          if token not in commandDict:
-              correct = False
+      else:
+        count += 1
+
+        # if user input is still correct and tokens are getting into specific keywords
+    elif correct and count == 2:
+      correctCount = -1
+
+            # if the first keyword was Sport or there is a foriegn key to Sport table
+      if tokens[1] == "Sport" or sportsTime:
+          correct = checkSport(token, tokens, correctCount, ct, correct)
+
+      correctCount = -1
+
+            # if the first keyword was Athlete and there is no foriegn key to Sport table
+            # if the first keyword was Athlete and there is no foriegn key to Sport table
+      if tokens[1] == "Athlete" and not sportsTime:
+                # if the token checked is Sport and has no "=" after it, it is foriegn key to Sports table
+          if token == "Sport":
+            if index != len(tokens) - 1:
+                index = tokens.index(token)
+                if tokens[index + 1] != "=":
+                    newToken = tokens[index + 1]
+                    # check Sports validation instead of Athlete b/c of foriegn key
+                    correct = checkSport(newToken, tokens,
+                                                 correctCount, ct, correct)
+                    sportsTime = True
+
+                            # Otherwise, check Athlete validation and keys
+                else:
+                      correct = checkAthlete(token, tokens, correctCount, ct,
+                                               correct)
           else:
-              count += 1
-      # if user input is still correct and token is second word in list
-      elif count == 1 and correct:
-            # checks if token is not Sport or Athlete key word
-          if token != "Sport" and token != "Athlete":
-              correct = False
-          else:
-              count += 1
-      
-      # if user input is still correct and tokens are getting into specific keywords
-      elif correct and count == 2:
-          correctCount = -1
-
-          # if the first keyword was Sport or there is a foriegn key to Sport table
-          if tokens[1] == "Sport" or sportsTime:
-              correct = checkSport(token, tokens, correctCount, ct, correct)
-
-          correctCount = -1
-
-          # if the first keyword was Athlete and there is no foriegn key to Sport table
-          if tokens[1] == "Athlete" and not sportsTime:
-              # if the token checked is Sport and has no "=" after it, it is foriegn key to Sports table
-              if token == "Sport":
-                  index = tokens.index(token)
-                  if tokens[index + 1] != "=":
-                      newToken = tokens[index + 1]
-                      # check Sports validation instead of Athlete b/c of foriegn key
-                      correct = checkSport(newToken, tokens, correctCount, ct, correct)
-                      sportsTime = True
-
-            # Otherwise, check Athlete validation and keys
-                  else:
-                   correct = checkAthlete(token, tokens, correctCount, ct, correct)
-              else:
-                   correct = checkAthlete(token, tokens, correctCount, ct, correct)
+            correct = checkAthlete(token, tokens, correctCount, ct,
+                                           correct)
 
     # If the user search and input was invalid, print error message, and set VALIDATED to false so nothing invalid is passed to execute()
-    if correct is False:
-        VALIDATED = False
-        print("Invalid command")
+  if correct is False:
+      VALIDATED = False
+      print("Invalid command")
 
     # return the parsed list by spaces to main()
-    return tokens
+  return tokens
+
 
 # User validation to check sport keywords against user input
 def checkSport(token, tokens, correctCount, ct, correct):
-    commandDict=FLAGS
-    
+    commandDict = FLAGS
+
     # is list of sport key words
     sportList = commandDict['Select']['Sport']
 
@@ -229,7 +221,9 @@ def checkSport(token, tokens, correctCount, ct, correct):
         if index != len(tokens) - 1:
             # if the next item in list is an "=", check for keyword
             if tokens[index + 1] == "=":
-                if token == key:
+                if tokens[index - 1] != "Sport":
+                    correct = False
+                elif token == key:
                     correctCount += 1
                     correct = True
                     searchWord = tokens[index + 2]
@@ -245,43 +239,47 @@ def checkSport(token, tokens, correctCount, ct, correct):
     # return if keyword and user search was valid
     return correct
 
+
 # User validation to check athlete keywords against user input
 def checkAthlete(token, tokens, correctCount, ct, correct):
-    commandDict=FLAGS
+    commandDict = FLAGS
 
     # is list of athlete key words
     athleteList = commandDict['Select']['Athlete']
 
     # checks every athlete key word against user keyword to see if valid
     for key in athleteList:
-      index = tokens.index(token)
-      # checks to see if item is last in list
-      if index != len(tokens) - 1:
-        # if the next item in list is an "=", check for keyword
-          if tokens[index + 1] == "=":
-              if token == key:
-                      correctCount += 1
-                      correct = True
-                      # validates user search to make sure it is an integer for specific keywords
-                      if token == "Age" or token == "Gold" or token == "Silver" or token == "Bronze":
-                          userInput = tokens[index+2]
-                          try:
-                              value = int(userInput)
-                          except ValueError:
-                              correct = False
-                      # otherwise, user search must be a string with ""
-                      else:
-                          searchWord = tokens[index+2]
-                          for letter in searchWord:
-                              if letter == '"':
-                                  ct+=1
-                          if ct != 2:
-                              correct = False
-              # if the token is not a keyword, it is invalid
-              elif correctCount != 0:
-                  correct = False
+        index = tokens.index(token)
+        # checks to see if item is last in list
+        if index != len(tokens) - 1:
+            # if the next item in list is an "=", check for keyword
+            if tokens[index + 1] == "=":
+                if token == key:
+                    correctCount += 1
+                    correct = True
+                    # validates user search to make sure it is an integer for specific keywords
+                    if token == "Age" or token == "Gold" or token == "Silver" or token == "Bronze":
+                        userInput = tokens[index + 2]
+                        # converts search string to integer
+                        try:
+                            value = int(userInput)
+                            tokens[index + 2] = value
+                        except ValueError:
+                            correct = False
+                    # otherwise, user search must be a string with ""
+                    else:
+                        searchWord = tokens[index + 2]
+                        for letter in searchWord:
+                            if letter == '"':
+                                ct += 1
+                        if ct != 2:
+                            correct = False
+                # if the token is not a keyword, it is invalid
+                elif correctCount != 0:
+                    correct = False
     # return if keyword and user search was valid
     return correct
+
 
 def execute(cmd, commandDict=FLAGS):
     """
@@ -295,58 +293,28 @@ def execute(cmd, commandDict=FLAGS):
     
     """
 
-    # Do a check to make sure first token in cmd is a valid command
-    # (Assert raises AssertionError if expression is False)
-    #assert cmd.split()[0] in FLAGS
-
     # I just added this b/c in line 164 it couldn't recognize commandDict b/c it wasn't a parameter LP
     # Added as default parameter - JH
     # commandDict = FLAGS
 
     # Split on spaces only
     # ex: ['Select', 'Athlete', 'age=21', 'sport=skiing']
-    
-    
-    #cmdTokens = cmd.split()
 
-   # for token in cmdTokens:
-    #  if token not in 
+    # updated dict - tokensDict
 
-
-    # changed but I think it will work - JW
     firstToken = cmd[0]
-    cmdCopy = cmd
-    #cmdCopy.remove(firstToken)
-    remainingTokens = cmdCopy
+    remainingTokens = cmd
 
+    #Making the validated list of commands into a dictionary for SQL ease
     tokensDict = {}
-
     for token in remainingTokens:
         for index, item in enumerate(remainingTokens):
             if item == "Select":
-                tokensDict["table"] =  remainingTokens[index+1]
+                tokensDict["Table"] = remainingTokens[index + 1]
             elif item == '=':
-                tokensDict[remainingTokens[index-1]] = remainingTokens[index+1]
-            #elif list(remainingTokens)[-1]:
-            #     break
-            #tokensDict[item] = remainingTokens[index]
-
-
-            #if token.contains("="):
-                #remainingTokens = token.split("=")
-                
-                #remaningTokens[]
-                
-    
-            
-            
+                tokensDict[remainingTokens[index - 1]] = remainingTokens[index + 1]
 
     print(tokensDict)
-
-    tokensDict = {'table': cmd[1]}
-
-    #print(tokensDict)
-    
 
     if remainingTokens == '':
         # Implement all the commands - query calls go here eventually
@@ -365,32 +333,54 @@ def execute(cmd, commandDict=FLAGS):
                 if firstToken == 'Name':
                     print("Age")
                 elif firstToken == 'Age':
-                    print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+                    print(
+                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
+                    )
                 elif firstToken == 'Team':
-                    print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+                    print(
+                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
+                    )
                 elif firstToken == 'Sex':
-                    print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+                    print(
+                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
+                    )
                 elif firstToken == 'Age':
-                    print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+                    print(
+                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
+                    )
                 elif firstToken == 'Gold':
-                    print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+                    print(
+                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
+                    )
                 elif firstToken == 'Silver':
-                    print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+                    print(
+                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
+                    )
                 elif firstToken == 'Bronze':
-                    print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+                    print(
+                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
+                    )
                 elif firstToken == 'Sport':
-                    print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
+                    print(
+                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
+                    )
                 else:
                     print('That command hasn\'t been implemented yet.')
             if firstToken == 'Sport':
                 firstToken = cmd.split()[0]
                 remainingTokens = ' '.join(cmd.split()[1:])
                 if firstToken == 'Name':
-                    print(f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]')
+                    print(
+                        f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]'
+                    )
                 elif firstToken == 'Season':
-                    print(f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]')
+                    print(
+                        f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]'
+                    )
                 elif firstToken == 'Type':
-                    print(f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]')
+                    print(
+                        f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]'
+                    )
                 else:
                     print('That command hasn\'t been implemented yet.')
         else:
@@ -419,17 +409,18 @@ def main():
         # TODO - call displayFirstUnrecognizedToken() here and get rid of
         # "Invalid command. " in input()
         tokensList = displayFirstUnrecognizedToken(cmd)
-        print(tokensList)
+        # print(tokensList)
+
         # needs to return false if not recognized and prompt user for another input
         # cmd = input('Invalid command. Enter a command:\n——> ')
 
         # Main command
         # Run command
-       
+
         #make test list thats already "validated"
 
-        # if VALIDATED:
-        execute(tokensList)
+        if VALIDATED:
+            execute(tokensList)
 
         print()
 

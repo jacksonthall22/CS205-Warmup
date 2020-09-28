@@ -14,7 +14,7 @@ def main():
     read_olympic_data.to_sql('ATHELETES', conn, if_exists='append', index=False)
 
     # These print out our two tables as proof
-    df = DataFrame(c.execute(''' SELECT * from ATHELETES'''))
+    df = DataFrame(c.execute('''SELECT * from ATHELETES'''))
     print(df)
 
     df2 = DataFrame(c.execute('''SELECT * FROM SPORTS'''))

@@ -11,8 +11,8 @@ from pandas import DataFrame
 dbConnection = None
 dbCursor = None
 DB_FILENAME = 'database_filename.db'  # TODO be mroe creative
-CSV_FILENAME_ATHLETES = 'athlete_csv.csv'  # TODO
-CSV_FILENAME_SPORTS = 'sport_csv.csv'  # TODO
+CSV_FILENAME_ATHLETES = 'OlympicDataSet.csv'  # TODO
+CSV_FILENAME_SPORTS = 'OlympicSportData.csv'  # TODO
 
 VALID_FIELDS = ['name', 'age', 'sex', 'gold', 'silver', 'bronze', 'team', 'sport', 'season']
 
@@ -26,14 +26,16 @@ def connect(dbFilename=DB_FILENAME):
     # Make sure hard-coded filename is valid
     success = True
     try:
-        with open(dbFilename):
+        with open(DB_FILENAME):
             pass
-    except FileError:
+    except FileNotFoundError:
         success = False
 
-    assert success
-
+    # assert success
+    global dbConnection
     dbConnection = sqlite3.connect(dbFilename)
+
+    global dbCursor
     dbCursor = dbConnection.cursor()
 
     # Load CSV data into DB
@@ -50,8 +52,8 @@ def executeSQL(fieldsDict, cursor=dbCursor):
     print("execute sql function called")
 
     # # Check if global db_connection is None
-    # if not dbConnection:
-    #     connect()
+    if not dbConnection:
+        connect()
 
     field = ''
     # Construct and execute the SQL from fieldsDict
@@ -59,8 +61,7 @@ def executeSQL(fieldsDict, cursor=dbCursor):
     query = ''
 
 
-
-    return cursor.execute(f'SELECT FROM {['tblAthlete', 'tblSport'][fieldsDict['table'].lower() == 'sport']} WHERE {'AND'.join([f'{i} == {fieldsDict[i]}' for i in fieldsDict])}')
+    # return cursor.execute(f'SELECT FROM {['tblAthlete', 'tblSport'][fieldsDict['table'].lower() == 'sport']} WHERE {'AND'.join([f'{i} == {fieldsDict[i]}' for i in fieldsDict])}')
 
 def load():
     loadData(CSV_FILENAME_ATHLETES, 'tblAthlete')
@@ -70,6 +71,7 @@ def load():
 # This will load in the data with specified csv file name
 def loadData(csvFileName, tableName):
     # These should read the data in the csvFile and put it into a table with the given name
-    read_data = pd.read_csv(CSV_FILENAME_ATHLETES)
-    read_data.to_sql(tableName, dbCursor, if_exists='append',
-                     index=False)  # Insert the values from the csv file into the table tableName
+    read_data = pd.read_csv(csvFileName)
+    global dbCursor
+    # Insert the values from the csv file into the table tableName
+    read_data.to_sql(tableName, dbCursor, if_exists='append', index=False)

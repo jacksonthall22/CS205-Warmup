@@ -361,7 +361,9 @@ def main():
         # make test list thats already "validated"
 
         # if VALIDATED:
-        execute(tokensList)
+        # execute(tokensList)
+
+        sql_queries.connect()
 
 
 

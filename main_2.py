@@ -100,6 +100,7 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
   sportsTime = False
 
     # Adds spacing to user input after and before "=" if not there so tokens list for validation is correct
+  
   try:
       while not found:
             # If there is no "=" and it is the first time cmd string is checked, set cmd2 to cmd
@@ -319,75 +320,8 @@ def execute(cmd, commandDict=FLAGS):
     if remainingTokens == '':
         # Implement all the commands - query calls go here eventually
         # if firstToken == 'load data': # TODO: when you uncomment this change 'if' to 'elif' below
-        if firstToken == 'help':
+        if firstToken == 'Help':
             printCommandsDict()
-        # elif firstToken == 'Athlete':
-        # print(f'[run test command with remainingTokens = "{remainingTokens}"')
-        elif firstToken == 'Select':
-            # Update first & remaining tokens
-            firstToken = remainingTokens.split()[0]
-            remainingTokens = ' '.join(remainingTokens.split()[1:])
-            if firstToken == 'Athlete':
-                firstToken = cmd.split()[0]
-                remainingTokens = ' '.join(cmd.split()[1:])
-                if firstToken == 'Name':
-                    print("Age")
-                elif firstToken == 'Age':
-                    print(
-                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
-                    )
-                elif firstToken == 'Team':
-                    print(
-                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
-                    )
-                elif firstToken == 'Sex':
-                    print(
-                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
-                    )
-                elif firstToken == 'Age':
-                    print(
-                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
-                    )
-                elif firstToken == 'Gold':
-                    print(
-                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
-                    )
-                elif firstToken == 'Silver':
-                    print(
-                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
-                    )
-                elif firstToken == 'Bronze':
-                    print(
-                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
-                    )
-                elif firstToken == 'Sport':
-                    print(
-                        f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]'
-                    )
-                else:
-                    print('That command hasn\'t been implemented yet.')
-            if firstToken == 'Sport':
-                firstToken = cmd.split()[0]
-                remainingTokens = ' '.join(cmd.split()[1:])
-                if firstToken == 'Name':
-                    print(
-                        f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]'
-                    )
-                elif firstToken == 'Season':
-                    print(
-                        f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]'
-                    )
-                elif firstToken == 'Type':
-                    print(
-                        f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]'
-                    )
-                else:
-                    print('That command hasn\'t been implemented yet.')
-        else:
-            #
-            print('That command hasn\'t been implemented yet.')
-
-    # elif firstToken == ... etc. continue for all commands
 
 
 def main():
@@ -397,8 +331,11 @@ def main():
 
         cmd = input('Enter a command:\n——> ')
 
-        if cmd == 'quit':
+        if cmd == 'Quit':
             break
+        if cmd == 'Help':
+          VALIDATED
+          printCommandsDict()
 
         # Validate input & make sure first token is a valid command
         # (.split() splits string on spaces)
@@ -408,7 +345,8 @@ def main():
         # while cmd.split()[0] not in COMMANDS:
         # TODO - call displayFirstUnrecognizedToken() here and get rid of
         # "Invalid command. " in input()
-        tokensList = displayFirstUnrecognizedToken(cmd)
+        else:
+          tokensList = displayFirstUnrecognizedToken(cmd)
         # print(tokensList)
 
         # needs to return false if not recognized and prompt user for another input

@@ -92,19 +92,23 @@ def ValidateUserInput(cmd, commandDict=FLAGS, depth=0):
   # Adds spacing to user input after and before "=" if not there to split by spaces later
   try:
       while not found:
+          
           # If there is no "=" and it is the first time cmd string is checked, set cmd2 to cmd
           if (cmd.find("=") == -1 and first):
               found = True
               cmd2 = cmd
+          
           # else if there is no "=" left in cmd string, set cmd2 = cmd
           elif (cmd.find("=") == -1):
               cmd2 = cmd2 + cmd
               found = True
+          
           # else there are "=" left in cmd string to be split
           else:
               first = False
               # find the index of "=" in string
               index = cmd.find("=")
+              
               # if there is no space before "=", add one
               if cmd[index - 1] != " ":
                   cmd = cmd[:index] + ' ' + cmd[index:]
@@ -124,7 +128,7 @@ def ValidateUserInput(cmd, commandDict=FLAGS, depth=0):
       correct = False
   print(cmd2)
 
-  # Calculate number of the parentheses in the user input, if there is not opening & closing
+  # Calculate number of the parentheses in the user input, if there is not opening & closing 
   # parentheses, set correct to false
   anotherOne = 0
   for i in cmd2:
@@ -270,9 +274,7 @@ def checkSport(token, tokens, correctCount, ct, correct):
             
             # if the next item in list is an "=", check for keyword
             if tokens[index + 1] == "=":
-                if tokens[index - 1] != "sport":
-                    correct = False
-                elif token == key:
+                if token == key:
                     correctCount += 1
                     correct = True
                     searchWord = tokens[index + 2]
@@ -351,8 +353,7 @@ def execute(cmd, commandDict=FLAGS):
                 tokensDict["table"] = cmd[index + 1]
             elif item == '=':
                 tokensDict[cmd[index - 1]] = (cmd[index + 1]).strip('"')
-            
-            
+
     print(tokensDict)
 
 def main():

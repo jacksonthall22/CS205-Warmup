@@ -36,7 +36,7 @@ import re
 FLAGS = {
     'select': {
         'athlete':
-        ['name', 'age', 'sex', 'gold', 'silver', 'bronze', 'team', 'event'],
+        ['fullname', 'age', 'sex', 'gold', 'silver', 'bronze', 'team', 'event'],
         'sport': ['name', 'season', 'type']
     },
     'quit': 'Quits program',
@@ -69,7 +69,7 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
     print('----Season -- select sport season - winter/summer')
     print('----Type -- select sport type - (individual/team)')
     print('-Athlete -- select Athlete data table')
-    print('----Name -- execute Athlete subcommand find by name)')
+    print('----fullname -- execute Athlete subcommand find by name)')
     print('----Event -- execute Athlete subcommand find by athlete event competed')
     print('----Age -- execute Athlete subcommand find by age')
     print(
@@ -178,10 +178,13 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
       for item in tokens:
           if item == '=':
             token = tokens[counter - 1]
-            if token == "name" or token == "event" or token == "team" or token == "sex":
-              search = searchList[0]
-              searchList.remove(search)
-              tokens.insert(counter+1,search)
+            if token == "name" or token == "fullname" or token == "event" or token == "team" or token == "sex" or token == "type" or token == "season":
+              try:
+                search = searchList[0]
+                searchList.remove(search)
+                tokens.insert(counter+1,search)
+              except:
+                correct = False
           counter+=1
       count = 0
 

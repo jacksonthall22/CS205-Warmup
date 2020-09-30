@@ -82,7 +82,7 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
 
     print('Example commands: ')
     print('Select Sport = "skiing"')
-    print('Select Athlete Event = "Swimming" Gold = 3')
+    print('Select Athlete Age = 20 Sport Type = "Team"')
 
 
 def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
@@ -178,7 +178,7 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
       for item in tokens:
           if item == '=':
             token = tokens[counter - 1]
-            if token == "age" or token == "gold" or token == "silver" or token == "bronze":
+            if token == "name" or token == "event" or token == "team" or token == "sex":
               search = searchList[0]
               searchList.remove(search)
               tokens.insert(counter+1,search)
@@ -335,14 +335,8 @@ def execute(cmd, commandDict=FLAGS):
     tokensDict = {}
     for token in cmd:
         for index, item in enumerate(cmd):
-            #if item == "select":
-                #tokensDict["table"] = cmd[index + 1]
-            if (item == "sport") | (item == "athlete"):
-                tokensDict["table"] = item
-                if item in cmd:
-                 tokensDict["table"] = cmd[index]
-                else:
-                   tokensDict["table"] = cmd[index - 1]
+            if item == "select":
+                tokensDict["table"] = cmd[index + 1]
             elif item == '=':
                 tokensDict[cmd[index - 1]] = (cmd[index + 1]).strip('"')
             

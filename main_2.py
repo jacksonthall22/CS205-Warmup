@@ -20,18 +20,9 @@ Group Notes:
     sports that match criteria right? Ex "Select Sport Soccer" I assume
     still shows a list of athleteS? - JH
 
-
-
 '''
-import re
 
 ################# CONSTANTS #################
-
-# Set list of commands with their descriptions and subcommands. terminatorRegex can be
-# used to check that the last non-keywords of a command (athlete/sport name, etc) are valid
-# (Basically JSON format: https://en.wikipedia.org/wiki/JSON#Example)
-
-# import sql_queries.py
 
 FLAGS = {
     'select': {
@@ -84,9 +75,10 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
     print('Select Sport = "skiing"')
     print('Select Athlete Age = 20 Sport Type = "Team"')
 
-
-def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
-# Variables
+# ValidatesUserInput validates the user input based on specific
+# criteria of query language
+def ValidateUserInput(cmd, commandDict=FLAGS, depth=0):
+  # VARIABLES
   global VALIDATED
   VALIDATED = True
   index = 0
@@ -96,84 +88,92 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
   found = False
   sportsTime = False
 
-    # Adds spacing to user input after and before "=" if not there so tokens list for validation is correct
-
+  # Adds spacing to user input after and before "=" if not there to split by spaces later
   try:
       while not found:
-            # If there is no "=" and it is the first time cmd string is checked, set cmd2 to cmd
+          # If there is no "=" and it is the first time cmd string is checked, set cmd2 to cmd
           if (cmd.find("=") == -1 and first):
               found = True
               cmd2 = cmd
-            # else if there is no "=" left in cmd string, set cmd2 = cmd
+          # else if there is no "=" left in cmd string, set cmd2 = cmd
           elif (cmd.find("=") == -1):
               cmd2 = cmd2 + cmd
               found = True
-            # else there are "=" left in cmd string to be split
+          # else there are "=" left in cmd string to be split
           else:
               first = False
-                # find the index of "=" in string
+              # find the index of "=" in string
               index = cmd.find("=")
-                # if there is no space before "=", add one
+              # if there is no space before "=", add one
               if cmd[index - 1] != " ":
                   cmd = cmd[:index] + ' ' + cmd[index:]
                   index += 1
-                # if there is no space after "=", add one
+              # if there is no space after "=", add one
               if cmd[index + 1] != " ":
                   cmd = cmd[:index + 1] + ' ' + cmd[index + 1:]
-                # put string back together
+              # put string back together
               cmd2 = cmd2 + cmd[:index + 2]
-                # if there are no more "=" left in cmd, go to very end of cmd and get rest of string
+              # if there are no more "=" left in cmd, go to very end of cmd and get rest of string
               if (cmd.find("=") == -1):
                   cmd = cmd[index + 2:len(cmd)]
-                # Else re assign cmd to rest of string
+              # Else re assign cmd to rest of string
               else:
                   cmd = cmd[index + 2:]
   except IndexError:
       correct = False
   print(cmd2)
-  anotherOne = 0
 
+  # Locates all of the paraentheses in the user input, if there is not opening & closing
+  # paraentheses, set correct to false
+  anotherOne = 0
   for i in cmd2:
       if i == '"':
-          anotherOne+=1
+          anotherOne += 1
   if anotherOne % 2 != 0 or anotherOne == 0:
       correct = False
 
+  # Takes user input and appends all key words (not user search) to new string, and then 
+  # splits by spaces 
   if correct:
       count = 0
       newCmd = ""
       for letter in cmd2:
           if letter == '"':
-              count+=1
+              count += 1
           if count == 0 or count % 2 == 0:
               if letter != '"':
                 newCmd+=letter
       if (len(newCmd.split()) > 1):
           tokens = newCmd.split()
       else:
-          # else assign tokens to word
           tokens = cmd2
 
-      start = 0
+      # VARIABLES
+      index = 0
       counter = 0
       searchList = []
-      indexP = 0
-      indexP2 = 0
+      indexOfFirstParantheses = 0
+      indexOfSecondParantheses = 0
+      
+      # locates index of parantheses and seperates user search from rest of string, appends
+      # to list searchList
       for letter in cmd2:
           if letter == '"':
               counter += 1
               if counter == 1:
-                  indexP = start
+                  indexOfFirstParantheses = index
               else:
-                  indexP2 = start
-          if indexP != 0 and indexP2 != 0:
-              search = cmd2[indexP:indexP2+1]
-              indexP2 = 0
-              indexP = 0
+                  indexOfSecondParantheses = index
+          if indexOfFirstParantheses != 0 and indexOfSecondParantheses != 0:
+              search = cmd2[indexOfFirstParantheses:indexOfSecondParantheses+1]
+              indexOfSecondParantheses = 0
+              indexOfFirstParantheses = 0
               counter = 0
               searchList.append(search)
-          start +=1
+          index += 1
 
+      # Inserts user search back into tokens list after '=' and in proper place and removes 
+      # from searchList, unless the search was for an integer value
       counter = 0
       for item in tokens:
           if item == '=':
@@ -185,7 +185,7 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
                 tokens.insert(counter+1,search)
               except:
                 correct = False
-          counter+=1
+          counter += 1
       count = 0
 
       print (tokens)
@@ -205,55 +205,51 @@ def displayFirstUnrecognizedToken(cmd, commandDict=FLAGS, depth=0):
             correct = False
           else:
             count += 1
-            # if user input is still correct and token is second word in list
+
+        # if user input is still correct and token is second word in list
         elif count == 1 and correct:
-            # checks if token is not Sport or Athlete key word
+          # checks if token is not Sport or Athlete key word
           if token != "sport" and token != "athlete":
               correct = False
           else:
             count += 1
 
-            # if user input is still correct and tokens are getting into specific keywords
+        # if user input is still correct and tokens are getting into specific keywords
         elif correct and count == 2:
           correctCount = -1
 
-                # if the first keyword was Sport or there is a foriegn key to Sport table
+          # if the first keyword was Sport or there is a foriegn key to Sport table
           if tokens[1] == "sport" or sportsTime:
               correct = checkSport(token, tokens, correctCount, ct, correct)
 
           correctCount = -1
 
-                # if the first keyword was Athlete and there is no foriegn key to Sport table
-                # if the first keyword was Athlete and there is no foriegn key to Sport table
+          # if the first keyword was Athlete and there is no foriegn key to Sport table
           if tokens[1] == "athlete" and not sportsTime:
-                    # if the token checked is Sport and has no "=" after it, it is foriegn key to Sports table
+              # if the token checked is Sport and has no "=" after it, it is foriegn key to Sports table
               if token == "sport":
                 if index != len(tokens) - 1:
                     index = tokens.index(token)
                     if tokens[index + 1] != "=":
                         newToken = tokens[index + 1]
                         # check Sports validation instead of Athlete b/c of foriegn key
-                        correct = checkSport(newToken, tokens,
-                                                     correctCount, ct, correct)
+                        correct = checkSport(newToken, tokens,correctCount, ct, correct)
                         sportsTime = True
 
-                                # Otherwise, check Athlete validation and keys
+                    # Otherwise, check Athlete validation and keys
                     else:
-                          correct = checkAthlete(token, tokens, correctCount, ct,
-                                                   correct)
+                          correct = checkAthlete(token, tokens, correctCount, ct, correct)
               else:
-                correct = checkAthlete(token, tokens, correctCount, ct,
-                                               correct)
+                correct = checkAthlete(token, tokens, correctCount, ct, correct)
 
-    # If the user search and input was invalid, print error message, and set VALIDATED to false so nothing invalid is passed to execute()
+  # If the user search and input was invalid, print error message, and set VALIDATED to false so nothing invalid is passed to execute()
   if correct is False:
       VALIDATED = False
       print("Invalid command")
 
-    # return the parsed list by spaces to main()
+  # return the parsed list by spaces to main()
   if correct:
     return tokens
-
 
 # User validation to check sport keywords against user input
 def checkSport(token, tokens, correctCount, ct, correct):
@@ -265,8 +261,10 @@ def checkSport(token, tokens, correctCount, ct, correct):
     # checks every sport key word against user keyword to see if valid
     for key in sportList:
         index = tokens.index(token)
+        
         # checks to see if item is last in list
         if index != len(tokens) - 1:
+            
             # if the next item in list is an "=", check for keyword
             if tokens[index + 1] == "=":
                 if tokens[index - 1] != "sport":
@@ -286,7 +284,6 @@ def checkSport(token, tokens, correctCount, ct, correct):
                     correct = False
     # return if keyword and user search was valid
     return correct
-
 
 # User validation to check athlete keywords against user input
 def checkAthlete(token, tokens, correctCount, ct, correct):
@@ -334,7 +331,7 @@ def execute(cmd, commandDict=FLAGS):
         Prints data output 
     """
 
-    #Making the validated list of commands into a dictionary for SQL ease
+    # Making the validated list of commands into a dictionary for SQL ease
     tokensDict = {}
     for token in cmd:
         for index, item in enumerate(cmd):
@@ -346,12 +343,10 @@ def execute(cmd, commandDict=FLAGS):
             
     print(tokensDict)
 
-
-
 def main():
     while True:
-        # Get command
         global VALIDATED
+        # Get command
         cmd = input('Enter a command:\n——> ').lower()
 
         if cmd.lower() == 'quit':
@@ -360,33 +355,14 @@ def main():
           VALIDATED = False
           printCommandsDict()
 
-        # Validate input & make sure first token is a valid command
-        # (.split() splits string on spaces)
-        # ie: 'gcc -std=gnu99 filename.c'.split()[0]
-        #   = ['gcc', '-std=gnu99', 'filename.c'][0]
-        #   = 'gcc'
-        # while cmd.split()[0] not in COMMANDS:
-        # TODO - call displayFirstUnrecognizedToken() here and get rid of
-        # "Invalid command. " in input()
         else:
           cmd = cmd.lower()
-          print (cmd)
-          tokensList = displayFirstUnrecognizedToken(cmd)
-        # print(tokensList)
-
-        # needs to return false if not recognized and prompt user for another input
-        # cmd = input('Invalid command. Enter a command:\n——> ')
-
-        # Main command
-        # Run command
-
-        #make test list thats already "validated"
-
+          tokensList = ValidateUserInput(cmd)
+        
         if VALIDATED:
             execute(tokensList)
 
         print()
-
 
 if __name__ == '__main__':
     main()

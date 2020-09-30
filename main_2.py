@@ -47,7 +47,7 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
 
     # Show initial help message
     print(
-        'Help message goes here, enter commands like these ones in this format -- select <Athlete/Sport> <field1>="x" [, <field2>="y"]: -- with strings in "quotes" and ints without'
+        'Help message goes here, enter commands like these ones in this format -- select <Athlete/Sport> <field1>="x" [, <field2>="y"]: -- with strings in "quotes" and integers without'
     )
     print()
     print('┌──────────┐')
@@ -57,22 +57,23 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
     print('Select -- will get athlete/sport data based on nested commands')
     print('-Sport -- select Sport data table')
     print('----Name -- execute Sport subcommand find by name')
-    print('----Season -- select sport season - winter/summer')
+    print('----Season -- select sport season - (winter/summer)')
     print('----Type -- select sport type - (individual/team)')
     print('-Athlete -- select Athlete data table')
-    print('----fullname -- execute Athlete subcommand find by name)')
-    print('----Event -- execute Athlete subcommand find by athlete event competed')
+    print('----fullname -- execute Athlete subcommand find by name')
+    print('----Event -- execute Athlete subcommand find by athlete sport competed')
     print('----Age -- execute Athlete subcommand find by age')
-    print(
-        '----Team -- execute Athlete subcommand find by Team, the country an athelte represents'
-    )
-    print('----Sex -- execute Athlete subcommand find by sex')
-    print('----Gold -- execute Athlete subcommand find by gold medals')
+    print('----Team -- execute Athlete subcommand find by Team, the country an athlete represents eg. United States, Germany, Russia')
+    print('----Sex -- execute Athlete subcommand find by sex (M/F)')
+    print('----Gold -- execute Athlete subcommand find by gold medals (1, 2, 3, ..)')
     print('----Silver -- execute Athlete subcommand find by silver medals')
     print('----Bronze -- execute Athlete subcommand find by bronze medals')
 
     print('Example commands: ')
     print('Select Sport = "skiing"')
+    print('Select Athlete fullname = "Simone Biles"')
+    print('Select Athlete Event = "Basketball" Sex = "F" Team = "United States"')
+    print('Select Athlete Gold = 1 Sport Season = "winter"')
     print('Select Athlete Age = 20 Sport Type = "Team"')
 
 # ValidatesUserInput validates the user input based on specific
@@ -123,8 +124,8 @@ def ValidateUserInput(cmd, commandDict=FLAGS, depth=0):
       correct = False
   print(cmd2)
 
-  # Locates all of the paraentheses in the user input, if there is not opening & closing
-  # paraentheses, set correct to false
+  # Calculate number of the parentheses in the user input, if there is not opening & closing
+  # parentheses, set correct to false
   anotherOne = 0
   for i in cmd2:
       if i == '"':
@@ -152,22 +153,22 @@ def ValidateUserInput(cmd, commandDict=FLAGS, depth=0):
       index = 0
       counter = 0
       searchList = []
-      indexOfFirstParantheses = 0
-      indexOfSecondParantheses = 0
+      indexOfFirstParentheses = 0
+      indexOfSecondParentheses = 0
       
-      # locates index of parantheses and seperates user search from rest of string, appends
+      # Locates index of parantheses and seperates user search from rest of string, appends
       # to list searchList
       for letter in cmd2:
           if letter == '"':
               counter += 1
               if counter == 1:
-                  indexOfFirstParantheses = index
+                  indexOfFirstParentheses = index
               else:
-                  indexOfSecondParantheses = index
-          if indexOfFirstParantheses != 0 and indexOfSecondParantheses != 0:
-              search = cmd2[indexOfFirstParantheses:indexOfSecondParantheses+1]
-              indexOfSecondParantheses = 0
-              indexOfFirstParantheses = 0
+                  indexOfSecondParentheses = index
+          if indexOfFirstParentheses != 0 and indexOfSecondParentheses != 0:
+              search = cmd2[indexOfFirstParentheses:indexOfSecondParentheses+1]
+              indexOfSecondParentheses = 0
+              indexOfFirstParentheses = 0
               counter = 0
               searchList.append(search)
           index += 1
@@ -190,16 +191,17 @@ def ValidateUserInput(cmd, commandDict=FLAGS, depth=0):
 
       print (tokens)
 
-        # Looks through key word dictionary and verifies user input is valid
+      # Looks through key word dictionary and verifies user input is valid
       for token in tokens:
         ct = 0
-            # If user input is still valid (correct) and token is the first word in list
+        # If user input is still valid (correct) and token is the first word in list
         if len(tokens) > 2:
           if tokens[2] == "=":
             correct = False
         if cmd2.find("=") == -1:
           correct = False
         if count == 0 and correct:
+          
           # if user input is not a key word
           if token not in commandDict:
             correct = False
@@ -226,6 +228,7 @@ def ValidateUserInput(cmd, commandDict=FLAGS, depth=0):
 
           # if the first keyword was Athlete and there is no foriegn key to Sport table
           if tokens[1] == "athlete" and not sportsTime:
+              
               # if the token checked is Sport and has no "=" after it, it is foriegn key to Sports table
               if token == "sport":
                 if index != len(tokens) - 1:
@@ -273,6 +276,7 @@ def checkSport(token, tokens, correctCount, ct, correct):
                     correctCount += 1
                     correct = True
                     searchWord = tokens[index + 2]
+                    
                     # user search must be a string with ""
                     for letter in searchWord:
                         if letter == '"':
@@ -282,6 +286,7 @@ def checkSport(token, tokens, correctCount, ct, correct):
                 # if the token is not a keyword, it is invalid
                 elif correctCount != 0:
                     correct = False
+    
     # return if keyword and user search was valid
     return correct
 
@@ -295,21 +300,26 @@ def checkAthlete(token, tokens, correctCount, ct, correct):
     # checks every athlete key word against user keyword to see if valid
     for key in athleteList:
         index = tokens.index(token)
+        
         # checks to see if item is last in list
         if index != len(tokens) - 1:
+            
             # if the next item in list is an "=", check for keyword
             if tokens[index + 1] == "=":
                 if token == key:
                     correctCount += 1
                     correct = True
+                    
                     # validates user search to make sure it is an integer for specific keywords
                     if token == "age" or token == "gold" or token == "silver" or token == "bronze":
                         userInput = tokens[index + 2]
+                        
                         # converts search string to integer
                         try:
                             value = int(userInput)
                         except ValueError:
                             correct = False
+                    
                     # otherwise, user search must be a string with ""
                     else:
                         searchWord = tokens[index + 2]
@@ -318,9 +328,11 @@ def checkAthlete(token, tokens, correctCount, ct, correct):
                                 ct += 1
                         if ct != 2:
                             correct = False
+                
                 # if the token is not a keyword, it is invalid
                 elif correctCount != 0:
                     correct = False
+    
     # return if keyword and user search was valid
     return correct
 
@@ -351,14 +363,17 @@ def main():
 
         if cmd.lower() == 'quit':
             break
+        # help prints out help text about commands
         if cmd.lower() == 'help':
           VALIDATED = False
           printCommandsDict()
 
+        # validate the user command against query language
         else:
           cmd = cmd.lower()
           tokensList = ValidateUserInput(cmd)
         
+        # if user command is valid, execute query search
         if VALIDATED:
             execute(tokensList)
 

@@ -23,11 +23,11 @@ Group Notes:
 '''
 
 ################# CONSTANTS #################
-
+#list of
 FLAGS = {
     'select': {
         'athlete':
-        ['fullname', 'age', 'sex', 'gold', 'silver', 'bronze', 'team', 'event'],
+        ['fullname', 'age', 'sex', 'team', 'event'],
         'sport': ['name', 'season', 'type']
     },
     'quit': 'Quits program',
@@ -47,7 +47,7 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
 
     # Show initial help message
     print(
-        'Help message goes here, enter commands like these ones in this format -- select <Athlete/Sport> <field1>="x" [, <field2>="y"]: -- with strings in "quotes" and integers without'
+        'Help message goes here, enter commands like these ones in this format -- select <Athlete/Sport> <field1>="x" [, <field2>="y"]: -- with strings in "quotes" and integers without. This is not case sensitive'
     )
     print()
     print('┌──────────┐')
@@ -65,20 +65,17 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
     print('----Age -- execute Athlete subcommand find by age')
     print('----Team -- execute Athlete subcommand find by Team, the country an athlete represents eg. United States, Germany, Russia')
     print('----Sex -- execute Athlete subcommand find by sex (M/F)')
-    print('----Gold -- execute Athlete subcommand find by gold medals (1, 2, 3, ..)')
-    print('----Silver -- execute Athlete subcommand find by silver medals')
-    print('----Bronze -- execute Athlete subcommand find by bronze medals')
 
     print('Example commands: ')
     print('Select Sport = "skiing"')
     print('Select Athlete fullname = "Simone Biles"')
     print('Select Athlete Event = "Basketball" Sex = "F" Team = "United States"')
-    print('Select Athlete Gold = 1 Sport Season = "winter"')
-    print('Select Athlete Age = 20 Sport Type = "Team"')
+    print('Select Athlete Age = 20 Sport Season = "winter"')
+    print('Select Sport Season = "winter" Athlete age = 24')
 
 # ValidatesUserInput validates the user input based on specific
 # criteria of query language
-def ValidateUserInput(cmd, commandDict=FLAGS, depth=0):
+def validateUserInput(cmd, commandDict=FLAGS, depth=0):
   # VARIABLES
   global VALIDATED
   VALIDATED = True
@@ -88,6 +85,7 @@ def ValidateUserInput(cmd, commandDict=FLAGS, depth=0):
   correct = True
   found = False
   sportsTime = False
+  athleteTime = False
 
   # Adds spacing to user input after and before "=" if not there to split by spaces later
   try:
@@ -131,10 +129,13 @@ def ValidateUserInput(cmd, commandDict=FLAGS, depth=0):
   # Calculate number of the parentheses in the user input, if there is not opening & closing 
   # parentheses, set correct to false
   anotherOne = 0
+  stringKeyWord = False
   for i in cmd2:
       if i == '"':
           anotherOne += 1
-  if anotherOne % 2 != 0 or anotherOne == 0:
+      if i == "name" or i == "fullname" or i == "event" or i == "team" or i == "sex" or i == "type" or i == "season":
+          stringKeyWord = True
+  if anotherOne % 2 != 0 or anotherOne == 0 and stringKeyWord:
       correct = False
 
   # Takes user input and appends all key words (not user search) to new string, and then 
@@ -194,6 +195,11 @@ def ValidateUserInput(cmd, commandDict=FLAGS, depth=0):
       count = 0
 
       print (tokens)
+     
+      # Makes sure user cannot enter same keyword search more than once - LP
+      for item in tokens:
+          if tokens.count(item) > 1 and item != "=":
+              correct = False
 
       # Looks through key word dictionary and verifies user input is valid
       for token in tokens:
@@ -225,15 +231,26 @@ def ValidateUserInput(cmd, commandDict=FLAGS, depth=0):
           correctCount = -1
 
           # if the first keyword was Sport or there is a foriegn key to Sport table
-          if tokens[1] == "sport" or sportsTime:
-              correct = checkSport(token, tokens, correctCount, ct, correct)
+          if (tokens[1] == "sport" or sportsTime) and not athleteTime:
+            if token == "athlete":
+              if index != len(tokens) - 1:
+                    index = tokens.index(token)
+                    if tokens[index + 1] != "=":
+                        newToken = tokens[index + 1]
+                        # check Athlete validation instead of Sport b/c of foriegn key
+                        correct = checkAthlete(newToken, tokens,correctCount, ct, correct)
+                        athleteTime = True
+                    
+                    # Otherwise, check Sport validation and keys
+                    else:
+                           correct = checkSport(token, tokens, correctCount, ct, correct)
+              else:
+                 correct = checkSport(token, tokens, correctCount, ct, correct)
 
           correctCount = -1
 
           # if the first keyword was Athlete and there is no foriegn key to Sport table
-          if tokens[1] == "athlete" and not sportsTime:
-              
-              # if the token checked is Sport and has no "=" after it, it is foriegn key to Sports table
+          if (tokens[1] == "athlete" or athleteTime) and not sportsTime:
               if token == "sport":
                 if index != len(tokens) - 1:
                     index = tokens.index(token)
@@ -313,10 +330,10 @@ def checkAthlete(token, tokens, correctCount, ct, correct):
                     correct = True
                     
                     # validates user search to make sure it is an integer for specific keywords
-                    if token == "age" or token == "gold" or token == "silver" or token == "bronze":
+                    if token == "age":
                         userInput = tokens[index + 2]
                         
-                        # converts search string to integer
+                         #converts search string to integer
                         try:
                             value = int(userInput)
                         except ValueError:
@@ -346,15 +363,49 @@ def execute(cmd, commandDict=FLAGS):
     """
 
     # Making the validated list of commands into a dictionary for SQL ease
+    correct  = True
     tokensDict = {}
-    for token in cmd:
+    try:
+      for token in cmd:
         for index, item in enumerate(cmd):
-            if item == "select":
-                tokensDict["table"] = cmd[index + 1]
-            elif item == '=':
-                tokensDict[cmd[index - 1]] = (cmd[index + 1]).strip('"')
+          if item == "select":
+            tokensDict["table"] = cmd[index + 1]
+          elif item == '=':
+            tokensDict[cmd[index - 1]] = (cmd[index + 1]).strip('"')
+    except:
+      print("Invalid command")
+      correct = False
+    
+    if correct == True:  
+        print(tokensDict)
+        outputList = executeSQL(tokensDict)
+        
+        displayRecords(outputList)
 
-    print(tokensDict)
+def displayRecords(records):
+    """ Display records to user in a readable way """
+
+    # TODO
+    assert type(record) == list
+
+    if not records:
+        print('There were no records for that query.')
+        return
+
+    print('Your query returned these results:')
+    print('----------------------------------')
+    
+    # Get what widths of columns should be based on longest element of any record in that field
+    colWidths = []
+    for col in range(len(records[0])):
+        colWidths.append(max((len(record[col]) for record in records))
+
+    # Define width in spaces between columns
+    COL_GAP = 3
+
+    for record in records:
+        for i, field in enumerate(record):
+            print(f'{field: colWidths[i] + COL_GAP}')
 
 def main():
     while True:
@@ -372,7 +423,7 @@ def main():
         # validate the user command against query language
         else:
           cmd = cmd.lower()
-          tokensList = ValidateUserInput(cmd)
+          tokensList = validateUserInput(cmd)
         
         # if user command is valid, execute query search
         if VALIDATED:

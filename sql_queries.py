@@ -1,16 +1,12 @@
-'''
-Jackson and Jake will write function here that can be called in main (since
-it was 'include'd in main.py)
-'''
 import os
 import sqlite3
 import pandas as pd
 
-dbConnection = None
-dbCursor = None
 DB_FILENAME = 'database.db'
 CSV_FILENAME_ATHLETES = 'tblAthlete.csv'
 CSV_FILENAME_SPORTS = 'tblSport.csv'
+dbConnection = None
+dbCursor = None
 dbExists = False
 loadedData = False
 
@@ -92,7 +88,7 @@ def executeSQL(commandDict, cursor=dbCursor):
                 #         fields.add(VALID_ATHLETE_FILTERS[_filter])
 
                 # TODO - not sure if this should be INNER JOIN or OUTER JOIN
-                sqlQuery = 'SELECT tblAthlete.fldFullName, tblAthlete.fldTeam, tblAthlete.fldAge,  tblAthlete.fldSex, tblAthlete.fldVenue, tblAthlete.fldYear{} FROM tblAthlete JOIN tblSports ON tblAthlete.fldEvent = tblSports.pmkName {};'.format(''.join([', ' + field for field in fields]),
+                sqlQuery = 'SELECT tblAthlete.fldFullName, tblAthlete.fldTeam, tblAthlete.fldAge,  tblAthlete.fldSex, tblAthlete.fldVenue, tblAthlete.fldYear{} FROM tblAthlete JOIN tblSport ON tblAthlete.fldEvent = tblSport.pmkName {};'.format(''.join([', ' + field for field in fields]),
                     ['', ' WHERE ' + ' AND '.join(conditions)][conditions != []])
 
             elif commandDict['table'].lower() == 'sport':
@@ -123,6 +119,7 @@ def executeSQL(commandDict, cursor=dbCursor):
                     ['', ' WHERE ' + ' AND '.join(conditions)][conditions != []])
 
             
+            print(f'test: sqlQuery: {sqlQuery}')
             return list(dbCursor.execute(sqlQuery))
     else:
         print("Please enter load data to load the tables for the database!")
@@ -150,12 +147,3 @@ def loadCSV(csvFileName, tableName):
         read_data.to_sql(tableName, dbConnection, if_exists='replace')
     else:
         read_data.to_sql(tableName, dbConnection)
-
-
-def sqlQuery(query):
-    connect()
-    global dbCursor
-    output = dbCursor.execute(query)
-
-    for row in output:
-        print(row)

@@ -33,26 +33,25 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
     print('┌──────────┐')
     print('│ COMMANDS │')
     print('├──────────┘')
-
-    print('Select -- will get athlete/sport data based on nested commands')
-    print('-Sport -- select Sport data table')
-    print('----Name -- execute Sport subcommand find by name')
-    print('----Season -- select sport season - (winter/summer)')
-    print('----Type -- select sport type - (individual/team)')
-    print('-Athlete -- select Athlete data table')
-    print('----fullname -- execute Athlete subcommand find by name')
-    print('----Event -- execute Athlete subcommand find by athlete sport competed')
-    print('----Age -- execute Athlete subcommand find by age')
-    print(
-        '----Team -- execute Athlete subcommand find by Team, the country an athlete represents eg. United States, Germany, Russia')
-    print('----Sex -- execute Athlete subcommand find by sex (M/F)')
-
-    print('Example commands: ')
-    print('Select Sport = "skiing"')
-    print('Select Athlete fullname = "Simone Biles"')
-    print('Select Athlete Event = "Basketball" Sex = "F" Team = "United States"')
-    print('Select Sport Season = "winter" age = 24')
-    print('Select Athlete Age = 20 Season = "winter"')
+    print('├╴Select : will get athlete/sport data based on nested commands')
+    print('│ ├╴Sport : select Sport data table')
+    print('│ │ ├╴name : execute Sport subcommand find by name')
+    print('│ │ ├╴season : select sport season - (winter/summer)')
+    print('│ │ └╴type : select sport type - (individual/team)')
+    print('│ └╴athlete : select Athlete data table')
+    print('│   ├╴fullname : execute Athlete subcommand find by name')
+    print('│   ├╴event : execute Athlete subcommand find by athlete sport competed')
+    print('│   ├╴age : execute Athlete subcommand find by age')
+    print('│   └╴team : execute Athlete subcommand find by Team, the country an athlete represents eg. United States')
+    print('├╴help : show this help message')
+    print('└╴load data : load data into database (only required once)')
+    print('')
+    print('Example commands:')
+    print('    Select Sport = "skiing"')
+    print('    Select Athlete fullname = "Simone Biles"')
+    print('    Select Athlete Event = "Basketball" Sex = "F" Team = "United States"')
+    print('    Select Sport Season = "winter" age = 24')
+    print('    Select Athlete Age = 20 Season = "winter"')
 
 
 # ValidatesUserInput validates the user input based on specific
@@ -451,6 +450,7 @@ def main():
 
         if cmd.lower() == 'load data':
             VALIDATED = False
+            otherKeyWord = True
             loadData()
 
         # validate the user command against query language

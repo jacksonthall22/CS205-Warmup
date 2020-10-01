@@ -21,12 +21,19 @@
 
 # Dictionary passed to executeSQL() example (only contains fields user specified):
     fieldsDict = {
-        'table': 'Sport' or 'Athlete',
+        'table': 'Sport', # or 'Athlete'
         'age': 30,
-        'name': 'Miclael Felpskdlskfja'
+        'sport' : skiing
     }
 
 ================================================
+
+
+fieldsDict = {
+        'table': 'Athlete'
+        'age': 30,
+        'name': 'Miclael Felpskdlskfja'
+    }
 
 # validate int fields
 cmdList = cmd.split()

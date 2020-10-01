@@ -1,5 +1,5 @@
 pmkName,fldSeason,fldType
-Athletics,Winter,Team
+Athletics,Summer,Team
 Diving,Summer,Individual
 Equestrianism,Summer,Individual
 Gymnastics,Summer,Individual
@@ -31,7 +31,7 @@ Taekwondo,Summer,Individual
 Tennis,Summer,Individual
 Trampolining,Summer,Individual
 Volleyball,Summer,Team
-Curling,Summer,Team
+Curling,Winter,Team
 Ice Hockey,Winter,Team
 Luge,Winter,Team
 Nordic Combined,Winter,Individual

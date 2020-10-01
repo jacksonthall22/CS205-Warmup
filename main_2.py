@@ -3,7 +3,8 @@ from sql_queries import executeSQL
 from sql_queries import loadData
 
 ################# CONSTANTS #################
-# list of
+
+# list of valid keywords from query language
 FLAGS = {
     'select': {
         'athlete':
@@ -17,9 +18,7 @@ FLAGS = {
 
 VALIDATED = True
 
-
 ################# FUNCTIONS #################
-
 
 def printCommandsDict(commandDict=FLAGS, depth=1):
     """
@@ -28,7 +27,7 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
 
     # Show initial help message
     print(
-        'Help message goes here, enter commands like these ones in this format -- select <Athlete/Sport> <field1>="x" [, <field2>="y"]: -- with strings in "quotes" and integers without. This is not case sensitive'
+        'Enter commands like these ones in this format -- select <Athlete/Sport> <field1>="x" [, <field2>="y"]: -- with strings in "quotes" and integers without. This is not case sensitive'
     )
     print()
     print('┌──────────┐')
@@ -52,8 +51,8 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
     print('Select Sport = "skiing"')
     print('Select Athlete fullname = "Simone Biles"')
     print('Select Athlete Event = "Basketball" Sex = "F" Team = "United States"')
-    print('Select Sport Season = "winter" Athlete age = 24')
-    print('Select Athlete Age = 20 Sport Season = "winter"')
+    print('Select Sport Season = "winter" age = 24')
+    print('Select Athlete Age = 20 Season = "winter"')
 
 
 # ValidatesUserInput validates the user input based on specific
@@ -107,7 +106,6 @@ def validateUserInput(cmd, commandDict=FLAGS, depth=0):
                     cmd = cmd[index + 2:]
     except IndexError:
         correct = False
-    print(cmd2)
 
     # Calculate number of the parentheses in the user input, if there is not opening & closing
     # parentheses, set correct to false
@@ -176,8 +174,6 @@ def validateUserInput(cmd, commandDict=FLAGS, depth=0):
                         correct = False
             counter += 1
         count = 0
-
-        print(tokens)
 
         # Makes sure user cannot enter same keyword search more than once - LP
         for item in tokens:
@@ -265,11 +261,9 @@ def validateUserInput(cmd, commandDict=FLAGS, depth=0):
                 if countSport != 1:
                     tokens.remove(sportItem)
             countSport += 1
-        print(tokens)
-
+            
         # return validated list of keywords to exec()
         return tokens
-
 
 # User validation to check sport keywords against user input
 def checkSport(token, tokens, correctCount, ct, correct):
@@ -304,7 +298,6 @@ def checkSport(token, tokens, correctCount, ct, correct):
 
     # return if keyword and user search was valid
     return correct
-
 
 # User validation to check athlete keywords against user input
 def checkAthlete(token, tokens, correctCount, ct, correct):
@@ -374,9 +367,7 @@ def execute(cmd, commandDict=FLAGS):
         correct = False
 
     if correct == True:
-        print(tokensDict)
         outputList = executeSQL(tokensDict)
-
         displayRecords(outputList)
 
 
@@ -393,19 +384,30 @@ def displayRecords(records):
     print('Your query returned these results:')
     print('----------------------------------')
 
-    # Get what widths of columns should be based on longest element of any record in that field
+    # Stores length of longest string in each field (to be printed vertically)
     colWidths = []
-    for col in range(len(records[0])):
-        colWidths.append(max((len(record[col]) for record in records)))
+    for col in range(len(records[0])): # loop through columns
+        colWidths.append(max( [len(str(record[col])) for record in records ]))
 
     # Define width in spaces between columns
     COL_GAP = 3
+    NUM_RECORDS_AT_A_TIME = 25
 
-    for record in records:
-        for i, field in enumerate(record):
-            print(f'{field: colWidths[i] + COL_GAP}')
+    for i_record, record in enumerate(records):
+        for i_field, field in enumerate(record):
+            print(f'{field:{(colWidths[i_field])}}', end=' ' * COL_GAP)
+        
+        print()
 
+        if (i_record + 1) % 25 == 0:
+            showMore = input(f'Showing records {(i_record + 1) - 24} – {i_record + 1} of {len(records)}. Show more? (y/n)\n––> ')
 
+            while showMore not in ['y', 'yes', 'n', 'no']:
+                showMore = input('Please enter "y" or "n":\n––>')
+            
+            if showMore in ['n', 'no']:
+                break
+        
 def welcome():
     """ Print a welcome banner (called when program first runs) """
     # Credit to: https://ascii.co.uk/art/olympics
@@ -435,6 +437,7 @@ def main():
 
     while True:
         global VALIDATED
+        otherKeyWord = False
         # Get command
         cmd = input('Enter a command:\n——> ').lower()
 
@@ -443,6 +446,7 @@ def main():
         # help prints out help text about commands
         if cmd.lower() == 'help':
             VALIDATED = False
+            otherKeyWord = True
             printCommandsDict()
 
         if cmd.lower() == 'load data':
@@ -450,7 +454,7 @@ def main():
             loadData()
 
         # validate the user command against query language
-        else:
+        if otherKeyWord != True:
             cmd = cmd.lower()
             tokensList = validateUserInput(cmd)
 

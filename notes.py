@@ -51,3 +51,13 @@ CREATE TABLE IF NOT EXISTS tblAthlete (
 
 
 '''
+
+
+command = input('Enter your command:\n>>> ')
+
+ALL_VALID_FILTERS = []
+
+def parseCommand(command):
+    command = command.strip()
+    
+    for token in command.split():

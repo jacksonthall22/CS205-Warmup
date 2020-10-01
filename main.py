@@ -52,8 +52,8 @@ def printCommandsDict(commandDict=FLAGS, depth=1):
     print('Select Sport = "skiing"')
     print('Select Athlete fullname = "Simone Biles"')
     print('Select Athlete Event = "Basketball" Sex = "F" Team = "United States"')
-    print('Select Sport Season = "winter" Athlete age = 24')
-    print('Select Athlete Age = 20 Sport Season = "winter"')
+    print('Select Sport Season = "winter" age = 24')
+    print('Select Athlete Age = 20 Season = "winter"')
 
 
 # ValidatesUserInput validates the user input based on specific

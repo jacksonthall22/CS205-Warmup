@@ -107,7 +107,6 @@ def validateUserInput(cmd, commandDict=FLAGS, depth=0):
                     cmd = cmd[index + 2:]
     except IndexError:
         correct = False
-    print(cmd2)
 
     # Calculate number of the parentheses in the user input, if there is not opening & closing
     # parentheses, set correct to false
@@ -176,8 +175,6 @@ def validateUserInput(cmd, commandDict=FLAGS, depth=0):
                         correct = False
             counter += 1
         count = 0
-
-        print(tokens)
 
         # Makes sure user cannot enter same keyword search more than once - LP
         for item in tokens:
@@ -265,7 +262,6 @@ def validateUserInput(cmd, commandDict=FLAGS, depth=0):
                 if countSport != 1:
                     tokens.remove(sportItem)
             countSport += 1
-        print(tokens)
 
         # return validated list of keywords to exec()
         return tokens
@@ -374,9 +370,7 @@ def execute(cmd, commandDict=FLAGS):
         correct = False
 
     if correct == True:
-        print(tokensDict)
         outputList = executeSQL(tokensDict)
-
         displayRecords(outputList)
 
 

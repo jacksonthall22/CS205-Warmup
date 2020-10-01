@@ -435,6 +435,7 @@ def main():
 
     while True:
         global VALIDATED
+        otherKeyWord = False
         # Get command
         cmd = input('Enter a command:\n——> ').lower()
 
@@ -443,14 +444,16 @@ def main():
         # help prints out help text about commands
         if cmd.lower() == 'help':
             VALIDATED = False
+            otherKeyWord = True
             printCommandsDict()
 
         if cmd.lower() == 'load data':
             VALIDATED = False
+            otherKeyWord = True
             loadData()
 
         # validate the user command against query language
-        else:
+        if otherKeyWord != True:
             cmd = cmd.lower()
             tokensList = validateUserInput(cmd)
 

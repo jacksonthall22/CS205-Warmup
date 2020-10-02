@@ -17,6 +17,7 @@ FLAGS = {
 
 VALIDATED = True
 
+
 ################# FUNCTIONS #################
 
 def printCommandsDict(commandDict=FLAGS, depth=1):
@@ -260,9 +261,10 @@ def validateUserInput(cmd, commandDict=FLAGS, depth=0):
                 if countSport != 1:
                     tokens.remove(sportItem)
             countSport += 1
-            
+
         # return validated list of keywords to exec()
         return tokens
+
 
 # User validation to check sport keywords against user input
 def checkSport(token, tokens, correctCount, ct, correct):
@@ -295,9 +297,9 @@ def checkSport(token, tokens, correctCount, ct, correct):
                 elif correctCount != 0:
                     correct = False
 
-
     # return if keyword and user search was valid
     return correct
+
 
 # User validation to check athlete keywords against user input
 def checkAthlete(token, tokens, correctCount, ct, correct):
@@ -370,9 +372,7 @@ def execute(cmd, commandDict=FLAGS):
         outputList = executeSQL(tokensDict)
         if outputList is not None:
             displayRecords(outputList)
-    if correct == True:
-        outputList = executeSQL(tokensDict)
-        displayRecords(outputList)
+
 
 def displayRecords(records):
     """ Display records to user in a readable way """
@@ -389,8 +389,8 @@ def displayRecords(records):
 
     # Stores length of longest string in each field (to be printed vertically)
     colWidths = []
-    for col in range(len(records[0])): # loop through columns
-        colWidths.append(max( [len(str(record[col])) for record in records ]))
+    for col in range(len(records[0])):  # loop through columns
+        colWidths.append(max([len(str(record[col])) for record in records]))
 
     # Define width in spaces between columns
     COL_GAP = 3
@@ -399,18 +399,20 @@ def displayRecords(records):
     for i_record, record in enumerate(records):
         for i_field, field in enumerate(record):
             print(f'{field:{(colWidths[i_field])}}', end=' ' * COL_GAP)
-        
+
         print()
 
         if (i_record + 1) % 25 == 0:
-            showMore = input(f'Showing records {(i_record + 1) - 24} – {i_record + 1} of {len(records)}. Show more? (y/n)\n––> ')
+            showMore = input(
+                f'Showing records {(i_record + 1) - 24} – {i_record + 1} of {len(records)}. Show more? (y/n)\n––> ')
 
             while showMore not in ['y', 'yes', 'n', 'no']:
                 showMore = input('Please enter "y" or "n":\n––>')
-            
+
             if showMore in ['n', 'no']:
                 break
-        
+
+
 def welcome():
     """ Print a welcome banner (called when program first runs) """
     # Credit to: https://ascii.co.uk/art/olympics
@@ -431,7 +433,7 @@ def welcome():
 ║    Jake Walburger
 ║    Lauren Paicopolis
 ║    Sarah O'Brien
-║''')  
+║''')
     print()
 
 

@@ -1,342 +1,472 @@
-import sql_queries
-
-################# GROUP NOTES #################
-'''
-Write any stuff here that everyone should see!
---------
-JH = Jackson
-JW = Jake
-LP = Lauren
-SO = Sarah
-
-Group Notes:
-  - ctrl-f for TODO for stuff that still needs doing to be done - JH
-  - Check if the commands are the ones we wanted/correct? or if 
-    they should change - LP
-  - LP & SO will we want some keywords/syntax/"output mode" to
-    decide how much info from a particular record to display on screen?
-    Maybe two modes: 1 displays all info and 2 displays less, like Name, Age, Sport,
-    Country Code, Golds, Silvers, Bronzes? - JH
-  - Clarification thing: probably no need to ever display a list of 
-    sports that match criteria right? Ex "Select Sport Soccer" I assume
-    still shows a list of athleteS? - JH
-
-
-
-'''
-
+################# IMPORTS #################
+from sql_queries import executeSQL
+from sql_queries import loadData
 
 ################# CONSTANTS #################
 
-# Set list of commands with their descriptions and subcommands. terminatorRegex can be
-# used to check that the last non-keywords of a command (athlete/sport name, etc) are valid
-# (Basically JSON format: https://en.wikipedia.org/wiki/JSON#Example)
-COMMANDS = {
-    # 'select atlete by name': {
-    #     'description': 'this is a test function',
-    #     'subcommands': {
-    #         '[a-zA-Z0-9]*': {
-    #             'subcommands': {
-    #                 'sort by':
-    #             }
-    #         }
-    #     },
-    # },
-    'Select': {
-        'description': 'will get athlete/sport data based on nested commands',
-        'subcommands': {
-            'Sport': {
-                'description': 'select Sport data table',
-                'subcommands': {
-                    'Name': {
-                        'description': 'execute Sport subcommand find by name',
-                        'subcommands': None,
-                    },
-                    'Season': {
-                        'description': 'select Sport Season (summer/winter)',
-                        'subcommands': None,
-                    },
-                    'Type': {
-                        'description': 'select Sport Type (individual/team)',
-                        'subcommands': None,
-                    },
-                },
-            },
-            'Athlete': {
-                'description': 'select Athlete data table',
-                'subcommands': {
-                    'Name': {
-                        'description': 'execute Athlete subcommand find by name',
-                        'subcommands': None,
-                    },
-                    'Age': {
-                        'description': 'execute Athlete subcommand find by age',
-                        'subcommands': None,
-                    },
-                    'Team': {
-                        'description': 'execute Athlete subcommand find by team',
-                        'subcommands': None,
-                    },
-                    'Sex': {
-                        'description': 'execute Athlete subcommand find by sex',
-                        'subcommands': None,
-                    },
-                    'Gold ': {
-                        'description': 'execute Athlete subcommand find by gold medals',
-                        'subcommands': None,
-                    },
-                    'Silver': {
-                        'description': 'execute Athlete subcommand find by silver medals',
-                        'subcommands': None,
-                    },
-                    'Bronze': {
-                        'description': 'execute Athlete subcommand find by bronze medals',
-                        'subcommands': None,
-                    },
-                    'Sport': {
-                        'description': 'execute Athlete subcommand find by sport',
-                        'subcommands': None,
-                    },
-                },
-            },
-        },
+# list of valid keywords from query language
+FLAGS = {
+    'select': {
+        'athlete':
+            ['fullname', 'age', 'sex', 'team', 'event'],
+        'sport': ['name', 'season', 'type']
     },
-    'help': {
-        'description': 'list available commands',
-        'subcommands': None,
-    },
-    'quit': {
-        'description': 'quit this program',
-        'subcommands': None,
-    },
+    'quit': 'Quits program',
+    'help': 'Displays Menu',
+    'load': 'Loads data',
 }
 
+VALIDATED = True
 
 ################# FUNCTIONS #################
 
-def printCommandsDict(commandDict=COMMANDS, depth=1):
+def printCommandsDict(commandDict=FLAGS, depth=1):
     """
-        Take a dictionary of commands and print formatted description
-        of their functions.
-
-        If any command in commandDict has subcommands, make a recursive call
-        to print those commands indented by one more level. Uses COMMANDS dict 
-        and starts at depth 1 by default
+        print formatted description of the command functions as well as examples
     """
 
     # Show initial help message
-    if depth == 1:
-        print('Help message goes here, enter commands like these ones:')
-        print()
-        print('┌──────────┐')
-        print('│ COMMANDS │')  
-        print('├──────────┘')
+    print(
+        'Enter commands like these ones in this format -- select <Athlete/Sport> <field1>="x" [, <field2>="y"]: -- with strings in "quotes" and integers without. This is not case sensitive'
+    )
+    print()
+    print('┌──────────┐')
+    print('│ COMMANDS │')
+    print('├──────────┘')
+    print('├╴Select : will get athlete/sport data based on nested commands')
+    print('│ ├╴Sport : select Sport data table')
+    print('│ │ ├╴name : execute Sport subcommand find by name')
+    print('│ │ ├╴season : select sport season - (winter/summer)')
+    print('│ │ └╴type : select sport type - (individual/team)')
+    print('│ └╴athlete : select Athlete data table')
+    print('│   ├╴fullname : execute Athlete subcommand find by name')
+    print('│   ├╴event : execute Athlete subcommand find by athlete sport competed')
+    print('│   ├╴age : execute Athlete subcommand find by age')
+    print('│   └╴team : execute Athlete subcommand find by Team, the country an athlete represents eg. United States')
+    print('├╴help : show this help message')
+    print('└╴load data : load data into database (only required once)')
+    print('')
+    print('Example commands:')
+    print('    Select Sport = "skiing"')
+    print('    Select Athlete age = 24 sport type = "individual"')
+    print('    Select Athlete Event = "Basketball" Sex = "F" Team = "United States"')
+    print('    Select Sport Season = "winter" athlete sex = "f"')
+    print('    Select Athlete Age = 20 sport Season = "winter"')
+    print('    Select Sport Season = "winter" ')
 
-    # Basically "for command in commandDict", but this allows for "hasnext()"ish functionality
-    commandDictItr = iter(commandDict)
-    while commandDictItr.__length_hint__() > 0:        
-        # Get next key from iterable - next() decreases output of __length_hint__() by 1
-        command = next(commandDictItr)
 
-        # Checks if dictionary has next element - if not print └ instead of ├
-        # Also checks that there isn't another nested layer of │s the bottom of the 
-        # connector should connect to
-        connector = '├╴'
-        if commandDictItr.__length_hint__() == 0 and commandDict[command]['subcommands'] is None:
-            connector = '└╴'
-        
-        print('│ ' * (depth-1) + connector + f'{command} : {commandDict[command]["description"]}')
-
-        # If there are subcommands, recursive call to print their descriptions
-        if commandDict[command]['subcommands'] is not None:
-            printCommandsDict(commandDict[command]['subcommands'], depth+1)
-        # else:
-        #     print('│ ' * (depth-1) + '├╴' + f'{command} : {commandDict[command]["description"]}')
-        #     # print(f'{" " * depth * SPACES_PER_DEPTH}{command} : {commandDict[command]["description"]}')
-
-        #     # If there are subcommands, recursive call to print their descriptions
-        #     if commandDict[command]['subcommands'] is not None:
-        #         printCommandsDict(commandDict[command]['subcommands'], depth + 1)
-
-def displayFirstUnrecognizedToken(cmd, commandDict=COMMANDS, depth=0):
-    """ 
-        TODO: Print error help message showing carot under position of first unrecognized token. 
-
-        Maybe something like this:
-            ——> subCommandsTest testSdkflefj B1 aldkjflskfj
-            Command not recognized:
-                subCommandsTest testSdkflefj B1 aldkjflskfj
-                                ^ invalid token
-            
-        However, shouldn't be used for names/fields/etc that aren't recognized: the following still does a query check for 
-            ——> get athlete by name "name that doesn't exist"
-            No results for athlete "name that doesn't exist"
-
-        Note: The "commandDict=COMMANDS" and "depth=0" are default arguments - see here:
-            https://www.geeksforgeeks.org/default-arguments-in-python/
-        for example:
-            displayFirstUnrecognizedToken('test')
-          = displayFirstUnrecognizedToken('test', COMMANDS, 0)
-    """
-
-    # TODO
-    tokens = cmd.split()
-    count = 0
-    end = False
+# ValidatesUserInput validates the user input based on specific
+# criteria of query language
+def validateUserInput(cmd, commandDict=FLAGS, depth=0):
+    # VARIABLES
+    global VALIDATED
+    VALIDATED = True
+    index = 0
+    first = True
+    cmd2 = ""
     correct = True
-    # Looks through key word dictionary and verifies user input is valid
-    for token in tokens:
-      # When there are still keywords left in user input
-        if end is False:
-          # If user input is still valid (correct) and token is the first word in list
+    found = False
+    sportsTime = False
+    athleteTime = False
+
+    # Adds spacing to user input after and before "=" if not there to split by spaces later
+    try:
+        while not found:
+
+            # If there is no "=" and it is the first time cmd string is checked, set cmd2 to cmd
+            if (cmd.find("=") == -1 and first):
+                found = True
+                cmd2 = cmd
+
+            # else if there is no "=" left in cmd string, set cmd2 = cmd
+            elif (cmd.find("=") == -1):
+                cmd2 = cmd2 + cmd
+                found = True
+
+            # else there are "=" left in cmd string to be split
+            else:
+                first = False
+                # find the index of "=" in string
+                index = cmd.find("=")
+
+                # if there is no space before "=", add one
+                if cmd[index - 1] != " ":
+                    cmd = cmd[:index] + ' ' + cmd[index:]
+                    index += 1
+                # if there is no space after "=", add one
+                if cmd[index + 1] != " ":
+                    cmd = cmd[:index + 1] + ' ' + cmd[index + 1:]
+                # put string back together
+                cmd2 = cmd2 + cmd[:index + 2]
+                # if there are no more "=" left in cmd, go to very end of cmd and get rest of string
+                if (cmd.find("=") == -1):
+                    cmd = cmd[index + 2:len(cmd)]
+                # Else re assign cmd to rest of string
+                else:
+                    cmd = cmd[index + 2:]
+    except IndexError:
+        correct = False
+
+    # Calculate number of the parentheses in the user input, if there is not opening & closing
+    # parentheses, set correct to false
+    anotherOne = 0
+    stringKeyWord = False
+    for i in cmd2:
+        if i == '"':
+            anotherOne += 1
+        if i == "name" or i == "fullname" or i == "event" or i == "team" or i == "sex" or i == "type" or i == "season":
+            stringKeyWord = True
+    if anotherOne % 2 != 0 or anotherOne == 0 and stringKeyWord:
+        correct = False
+
+    # Takes user input and appends all key words (not user search) to new string, and then
+    # splits by spaces
+    if correct:
+        count = 0
+        newCmd = ""
+        for letter in cmd2:
+            if letter == '"':
+                count += 1
+            if count == 0 or count % 2 == 0:
+                if letter != '"':
+                    newCmd += letter
+        if (len(newCmd.split()) > 1):
+            tokens = newCmd.split()
+        else:
+            tokens = cmd2
+
+        # VARIABLES
+        index = 0
+        counter = 0
+        searchList = []
+        indexOfFirstParentheses = 0
+        indexOfSecondParentheses = 0
+
+        # Locates index of parantheses and seperates user search from rest of string, appends
+        # to list searchList
+        for letter in cmd2:
+            if letter == '"':
+                counter += 1
+                if counter == 1:
+                    indexOfFirstParentheses = index
+                else:
+                    indexOfSecondParentheses = index
+            if indexOfFirstParentheses != 0 and indexOfSecondParentheses != 0:
+                search = cmd2[indexOfFirstParentheses:indexOfSecondParentheses + 1]
+                indexOfSecondParentheses = 0
+                indexOfFirstParentheses = 0
+                counter = 0
+                searchList.append(search)
+            index += 1
+
+        # Inserts user search back into tokens list after '=' and in proper place and removes
+        # from searchList, unless the search was for an integer value
+        counter = 0
+        for item in tokens:
+            if item == '=':
+                token = tokens[counter - 1]
+                if token == "name" or token == "fullname" or token == "event" or token == "team" or token == "sex" or token == "type" or token == "season":
+                    try:
+                        search = searchList[0]
+                        searchList.remove(search)
+                        tokens.insert(counter + 1, search)
+                    except:
+                        correct = False
+            counter += 1
+        count = 0
+
+        # Makes sure user cannot enter same keyword search more than once - LP
+        for item in tokens:
+            if tokens.count(item) > 1 and item != "=":
+                correct = False
+
+        # Looks through key word dictionary and verifies user input is valid
+        for token in tokens:
+            ct = 0
+            # If user input is still valid (correct) and token is the first word in list
+            if len(tokens) > 2:
+                if tokens[2] == "=":
+                    correct = False
+            if cmd2.find("=") == -1:
+                correct = False
             if count == 0 and correct:
+
                 # if user input is not a key word
                 if token not in commandDict:
                     correct = False
                 else:
                     count += 1
-            # while user input is still correct and token is second word in list
+
+            # if user input is still correct and token is second word in list
             elif count == 1 and correct:
-              # checks if token is not Sport or Athlete key word
-                if token != "Sport" and token != "Athlete":
+                # checks if token is not Sport or Athlete key word
+                if token != "sport" and token != "athlete":
                     correct = False
                 else:
-                    count+=1
-            # while user input is still correct, verfies rest of user string
+                    count += 1
+
+            # if user input is still correct and tokens are getting into specific keywords
             elif correct and count == 2:
-                correct = False
-                if tokens[1] == "Sport":
-                    sportDictionary = commandDict['Select']['subcommands']['Sport']['subcommands']
-                    for key in sportDictionary:
-                        if token == key:
-                            correct = True
-                            end = True
-                if tokens[1] == "Athlete":
-                    athleteDictionary = commandDict['Select']['subcommands']['Athlete']['subcommands']
-                    for key in athleteDictionary:
-                        if token == "Sport":
-                            sportDictionary = commandDict['Select']['subcommands']['Sport']['subcommands']
-                            for word in tokens:
-                                for key in sportDictionary:
-                                    if word == key:
-                                        dictionary = sportDictionary[word]
-                                        if dictionary['subcommands'] is None:
-                                            correct = True
-                                            end = True
-                                    else:
-                                        correct = True
-                                        end = True
-                        if token == key:
-                            correct = True
-                            end = True
+                correctCount = -1
 
+                # if the first keyword was Sport or there is a foriegn key to Sport table
+                if (tokens[1] == "sport" or sportsTime) and not athleteTime:
+                    if token == "athlete":
+                        if index != len(tokens) - 1:
+                            index = tokens.index(token)
+                            if tokens[index + 1] != "=":
+                                newToken = tokens[index + 1]
+                                # check Athlete validation instead of Sport b/c of foriegn key
+                                correct = checkAthlete(newToken, tokens, correctCount, ct, correct)
+                                athleteTime = True
 
+                            # Otherwise, check Sport validation and keys
+                            else:
+                                correct = checkSport(token, tokens, correctCount, ct, correct)
+                        else:
+                            correct = checkSport(token, tokens, correctCount, ct, correct)
 
+                correctCount = -1
+
+                # if the first keyword was Athlete and there is no foriegn key to Sport table
+                if (tokens[1] == "athlete" or athleteTime) and not sportsTime:
+                    if token == "sport":
+                        if index != len(tokens) - 1:
+                            index = tokens.index(token)
+                            if tokens[index + 1] != "=":
+                                newToken = tokens[index + 1]
+                                # check Sports validation instead of Athlete b/c of foriegn key
+                                correct = checkSport(newToken, tokens, correctCount, ct, correct)
+                                sportsTime = True
+
+                            # Otherwise, check Athlete validation and keys
+                            else:
+                                correct = checkAthlete(token, tokens, correctCount, ct, correct)
+                    else:
+                        correct = checkAthlete(token, tokens, correctCount, ct, correct)
+
+    # If the user search and input was invalid, print error message, and set VALIDATED to false so nothing invalid is passed to execute()
     if correct is False:
+        VALIDATED = False
         print("Invalid command")
 
+    # return the parsed list by spaces to main()
+    countSport = 0
+    if correct:
 
-def execute(cmd):
-    """ 
-        Execute the given command cmd. 
-    
-        cmd should be checked against COMMANDS before 
-        execute(cmd) is called to verify it is valid - that way any "errors" in this
-        function are a result of terminatorRegex check, not a result of misused keywords:
-        unknown filenames, athlete names that don't exist, etc. 
-    
+        # take out sport token in tokens list for query search (was only used
+        # to validate user input)
+        for sportItem in tokens:
+            if sportItem == "sport":
+                if countSport != 1:
+                    tokens.remove(sportItem)
+            countSport += 1
+            
+        # return validated list of keywords to exec()
+        return tokens
+
+# User validation to check sport keywords against user input
+def checkSport(token, tokens, correctCount, ct, correct):
+    commandDict = FLAGS
+
+    # is list of sport key words
+    sportList = commandDict['select']['sport']
+
+    # checks every sport key word against user keyword to see if valid
+    for key in sportList:
+        index = tokens.index(token)
+
+        # checks to see if item is last in list
+        if index != len(tokens) - 1:
+
+            # if the next item in list is an "=", check for keyword
+            if tokens[index + 1] == "=":
+                if token == key:
+                    correctCount += 1
+                    correct = True
+                    searchWord = tokens[index + 2]
+
+                    # user search must be a string with ""
+                    for letter in searchWord:
+                        if letter == '"':
+                            ct += 1
+                    if ct != 2:
+                        correct = False
+                # if the token is not a keyword, it is invalid
+                elif correctCount != 0:
+                    correct = False
+
+    # return if keyword and user search was valid
+    return correct
+
+# User validation to check athlete keywords against user input
+def checkAthlete(token, tokens, correctCount, ct, correct):
+    commandDict = FLAGS
+
+    # is list of athlete key words
+    athleteList = commandDict['select']['athlete']
+
+    # checks every athlete key word against user keyword to see if valid
+    for key in athleteList:
+        index = tokens.index(token)
+
+        # checks to see if item is last in list
+        if index != len(tokens) - 1:
+
+            # if the next item in list is an "=", check for keyword
+            if tokens[index + 1] == "=":
+                if token == key:
+                    correctCount += 1
+                    correct = True
+
+                    # validates user search to make sure it is an integer for specific keywords
+                    if token == "age":
+                        userInput = tokens[index + 2]
+
+                        # converts search string to integer
+                        try:
+                            value = int(userInput)
+                        except ValueError:
+                            correct = False
+
+                    # otherwise, user search must be a string with ""
+                    else:
+                        searchWord = tokens[index + 2]
+                        for letter in searchWord:
+                            if letter == '"':
+                                ct += 1
+                        if ct != 2:
+                            correct = False
+
+                # if the token is not a keyword, it is invalid
+                elif correctCount != 0:
+                    correct = False
+
+    # return if keyword and user search was valid
+    return correct
+
+
+def execute(cmd, commandDict=FLAGS):
+    """
+        Makes a dictionary of the already validated comands
+        Prints data output
     """
 
-    # Do a check to make sure first token in cmd is a valid command
-    # (Assert raises AssertionError if expression is False)
-    assert cmd.split()[0] in COMMANDS
+    # Making the validated list of commands into a dictionary for SQL ease
+    correct = True
+    tokensDict = {}
+    try:
+        for token in cmd:
+            for index, item in enumerate(cmd):
+                if item == "select":
+                    tokensDict["table"] = cmd[index + 1]
+                elif item == '=':
+                    tokensDict[cmd[index - 1]] = (cmd[index + 1]).strip('"')
+    except:
+        print("Invalid command")
+        correct = False
 
-    # I just added this b/c in line 164 it couldn't recognize commandDict b/c it wasn't a parameter LP
-    commandDict = COMMANDS
-    
-    # Split into 'first' and 'everything else' tokens as strings
-    # Ex. 'gcc -std=gnu99 filename.c' becomes:
-    # firstToken = 'gcc'
-    # remainingTokens = '-std=gnu99 filename.c'
-    firstToken = cmd.split()[0]
-    remainingTokens = ' '.join(cmd.split()[1:])
+    if correct:
+        outputList = executeSQL(tokensDict)
+        if outputList is not None:
+            displayRecords(outputList)
 
-    if remainingTokens == '' and commandDict[cmd]['subcommands'] is None:
-    # Implement all the commands - query calls go here eventually
-      # if firstToken == 'load data': # TODO: when you uncomment this change 'if' to 'elif' below
-      if firstToken == 'help':
-        printCommandsDict()
-      #elif firstToken == 'Athlete':
-        #print(f'[run test command with remainingTokens = "{remainingTokens}"')
-      elif firstToken == 'Select':
-      # Update first & remaining tokens
-        firstToken = remainingTokens.split()[0]
-        remainingTokens = ' '.join(remainingTokens.split()[1:])
-        if firstToken == 'Athlete':
-            firstToken = cmd.split()[0]
-            remainingTokens = ' '.join(cmd.split()[1:])
-            if firstToken == 'Name':
-                print("Age")
-            elif firstToken == 'Age':
-                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
-            elif firstToken == 'Team':
-                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
-            elif firstToken == 'Sex':
-                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
-            elif firstToken == 'Age':
-                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
-            elif firstToken == 'Gold':
-                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
-            elif firstToken == 'Silver':
-                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
-            elif firstToken == 'Bronze':
-                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
-            elif firstToken == 'Sport':
-                print(f'[run "subCommandsTest testB B2" command with remainingTokens = "{remainingTokens}"]')
-            else:
-                print('That command hasn\'t been implemented yet.')
-        if firstToken == 'Sport':
-            firstToken = cmd.split()[0]
-            remainingTokens = ' '.join(cmd.split()[1:])
-            if firstToken == 'Name':
-                print(f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]')
-            elif firstToken == 'Season':
-                print(f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]')
-            elif firstToken == 'Type':
-                print(f'[run "subCommandsTest testB B1" command with remainingTokens = "{remainingTokens}"]')
-            else:
-                 print('That command hasn\'t been implemented yet.')
-      else:
-      # 
-        print('That command hasn\'t been implemented yet.')
 
-    # elif firstToken == ... etc. continue for all commands
+def displayRecords(records):
+    """ Display records to user in a readable way """
+
+    # TODO
+    assert type(records) == list or not records
+
+    if not records:
+        print('There were no records for that query.')
+        return
+
+    print('Your query returned these results:')
+    print('----------------------------------')
+
+    # Stores length of longest string in each field (to be printed vertically)
+    colWidths = []
+    for col in range(len(records[0])): # loop through columns
+        colWidths.append(max( [len(str(record[col])) for record in records ]))
+
+    # Define width in spaces between columns
+    COL_GAP = 3
+    NUM_RECORDS_AT_A_TIME = 25
+
+    for i_record, record in enumerate(records):
+        for i_field, field in enumerate(record):
+            print(f'{field:{(colWidths[i_field])}}', end=' ' * COL_GAP)
+        
+        print()
+
+        if (i_record + 1) % 25 == 0:
+            showMore = input(f'Showing records {(i_record + 1) - 24} – {i_record + 1} of {len(records)}. Show more? (y/n)\n––> ')
+
+            while showMore not in ['y', 'yes', 'n', 'no']:
+                showMore = input('Please enter "y" or "n":\n––>')
+            
+            if showMore in ['n', 'no']:
+                break
+        
+def welcome():
+    """ Print a welcome banner (called when program first runs) """
+    # Credit to: https://ascii.co.uk/art/olympics
+    print('''╓───────────────────────────────────┐
+║                                   │
+║    .-===-.   .-===-.   .-===-.    │
+║   /       \ /       \ /       \\   │
+║  | Olympic | Athlete | Database|  │
+║   \      ./=\.     ./=\.      /   │
+║    '-==-/'    '\=/'    '\-==-'    │
+║        |        |        |        │
+║         \      / \      /         │
+║          '-==-'   '-==-\'          │
+║                                   │
+╟───────────────────────────────────┘
+║  Created by:
+║    Jackson Hall
+║    Jake Walburger
+║    Lauren Paicopolis
+║    Sarah O'Brien
+║''')  
+    print()
+
 
 def main():
+    welcome()
+
     while True:
+        global VALIDATED
+        otherKeyWord = False
         # Get command
-        cmd = input('Enter a command:\n——> ')
+        cmd = input('Enter a command:\n——> ').lower()
 
-        if cmd == 'quit':
+        if cmd.lower() == 'quit':
             break
+        # help prints out help text about commands
+        if cmd.lower() == 'help':
+            VALIDATED = False
+            otherKeyWord = True
+            printCommandsDict()
 
-        # Validate input & make sure first token is a valid command
-        # (.split() splits string on spaces)
-        # ie: 'gcc -std=gnu99 filename.c'.split()[0] 
-        #   = ['gcc', '-std=gnu99', 'filename.c'][0] 
-        #   = 'gcc'
-       # while cmd.split()[0] not in COMMANDS:
-            # TODO - call displayFirstUnrecognizedToken() here and get rid of 
-            # "Invalid command. " in input()
-        displayFirstUnrecognizedToken(cmd)
-        #needs to return false if not recognized and prompt user for another input
-        #cmd = input('Invalid command. Enter a command:\n——> ')
+        if cmd.lower() == 'load data':
+            VALIDATED = False
+            otherKeyWord = True
+            loadData()
+            print('Data loaded!')
 
-        # Main command 
-        # Run command
-        execute(cmd)
+        # validate the user command against query language
+        if otherKeyWord != True:
+            cmd = cmd.lower()
+            tokensList = validateUserInput(cmd)
+
+        # if user command is valid, execute query search
+        if VALIDATED:
+            execute(tokensList)
 
         print()
+
 
 if __name__ == '__main__':
     main()

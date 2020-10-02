@@ -119,10 +119,9 @@ def executeSQL(commandDict, cursor=dbCursor):
                     ['', ' WHERE ' + ' AND '.join(conditions)][conditions != []])
 
             
-            print(f'test: sqlQuery: {sqlQuery}')
             return list(dbCursor.execute(sqlQuery))
     else:
-        print("Please enter load data to load the tables for the database!")
+        print('Please enter "load data" to load the tables for the database!')
 
         return None # Happens implicitly anyway
 

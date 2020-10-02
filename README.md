@@ -1,11 +1,12 @@
 
+# Olympic Athlete Data: The O.A.D.
 #### Intro
 This program allows a user to query data using a custom query language to retreive results from a dataset of Olympic Athletes and Sports, compiled using data from the 2014 Winter Olympics in Sochi, Russia and the 2016 Summer Olympics in Rio de Janeiro, Brazil. This program was created by Jackson Hall, Jake Walburger, Lauren Paicopolis, and Sarah O'Brien for the CS 205 Software Engineering warmup project.
 
 #### Setup
 To run this program you need to make sure you have the [pandas](https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html) package installed. With `pip`, you can do `pip install pandas`.
 
-# Using the Program
+#### Using the Program
 There are four types of commands:
 * `select` - filter and pull records from the database (more info below)
 * `load data` - load data from `tblAthlete.csv` and `tblSport.csv` (these are hard-coded so filenames must be identical and located in the same directory as `main.py`)

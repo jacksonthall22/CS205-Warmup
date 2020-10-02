@@ -3,7 +3,6 @@ from sql_queries import executeSQL
 from sql_queries import loadData
 
 ################# CONSTANTS #################
-
 # list of valid keywords from query language
 FLAGS = {
     'select': {
@@ -246,7 +245,7 @@ def validateUserInput(cmd, commandDict=FLAGS, depth=0):
                         correct = checkAthlete(token, tokens, correctCount, ct, correct)
 
     # If the user search and input was invalid, print error message, and set VALIDATED to false so nothing invalid is passed to execute()
-    if correct is False:
+    if not correct:
         VALIDATED = False
         print("Invalid command")
 
@@ -295,6 +294,7 @@ def checkSport(token, tokens, correctCount, ct, correct):
                 # if the token is not a keyword, it is invalid
                 elif correctCount != 0:
                     correct = False
+
 
     # return if keyword and user search was valid
     return correct
@@ -370,7 +370,9 @@ def execute(cmd, commandDict=FLAGS):
         outputList = executeSQL(tokensDict)
         if outputList is not None:
             displayRecords(outputList)
-
+    if correct == True:
+        outputList = executeSQL(tokensDict)
+        displayRecords(outputList)
 
 def displayRecords(records):
     """ Display records to user in a readable way """
@@ -453,8 +455,9 @@ def main():
         if cmd.lower() == 'load data':
             VALIDATED = False
             otherKeyWord = True
+            print('Loading...', end='')
             loadData()
-            print('Data loaded!')
+            print(' data loaded!')
 
         # validate the user command against query language
         if otherKeyWord != True:

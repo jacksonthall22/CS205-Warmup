@@ -1,50 +1,61 @@
 pmkName,fldSeason,fldType
-Athletics,Winter,Team
-Diving,Summer,Individual
-Equestrianism,Summer,Individual
-Gymnastics,Summer,Individual
-Rowing,Summer,Team
-Triathlon,Summer,Individual
-Bobsleigh,Winter,Team
-Figure Skating,Winter,Individual
-Ski Jumping,Summer,Individual
-Snowboarding,Summer,Individual
-Speed Skating,Summer,Individual
-Archery,Winter,Individual
-Canoeing,Summer,Individual
+Archery,Summer,Individual
+Artistic Swimming,Summer,Team
+Athletics,Summer,Individual
 Badminton,Summer,Team
+Baseball,Summer,Team
+Softball,Summer,Team
 Basketball,Summer,Team
 Beach Volleyball,Summer,Team
-Boxing,Winter,Individual
-Cycling,Summer,Individual
+Boxing,Summer,Individual
+Canoe Sprint,Summer,Team
+Cycling Mountain Bike,Summer,Individual
+Cycling Road,Summer,Individual
+Cycling Track,Summer,Individual
+Diving,Summer,Individual
+Equestrian/Dressage,Summer,Individual
+Equestrian Eventing,Summer,Individual
+Equestrian Jumping,Summer,Individual
+Fencing,Summer,Individual
 Football,Summer,Team
-Freestyle Skiing,Summer,Individual
 Golf,Summer,Individual
+Gymastics Artistic,Summer,Individual
+Gymastics Rhythmic,Summer,Individual
+Handball,Summer,Team
 Hockey,Summer,Team
 Judo,Summer,Individual
-Modern Pentathlon,Winter,Individual
-Rhythmic Gymnastics,Summer,Individual
-Rugby Sevens,Winter,Team
+Karate,Summer,Individual
+Marathon Swimming,Summer,Individual
+Modern Pentathlon,Summer,Individual
+Rowing,Summer,Team
+Rugby,Summer,Team
+Sailing,Summer,Team
 Shooting,Summer,Individual
-Synchronized Swimming,Winter,Team
+Sport Climbing,Summer,Individual
+Surfing,Summer,Individual
+Swimming,Summer,Individual
+Table Tennis,Summer,Individual
 Taekwondo,Summer,Individual
 Tennis,Summer,Individual
-Trampolining,Summer,Individual
+Trampoline,Summer,Individual
+Triathlon,Summer,Individual
 Volleyball,Summer,Team
-Curling,Summer,Team
+Water Polo,Summer,Team
+Weightlifting,Summer,Individual
+Wrestling Freestyle,Summer,Individual
+Wrestling Greco-Roman,Summer,Individual
+Alpine Skiing,Winter,Individual
+Biathlon,Winter,Individual
+Bobsleigh,Winter,Team
+Cross Country Skiing,Winter,Individual
+Curling,Winter,Team
+Figure Skating,Winter,Individual
+Freestyle Skating,Winter,Individual
 Ice Hockey,Winter,Team
 Luge,Winter,Team
 Nordic Combined,Winter,Individual
 Short Track Speed Skating,Winter,Individual
 Skeleton,Winter,Individual
-Cross Country Skiing,Summer,Individual
-Fencing,Summer,Individual
-Handball,Summer,Team
-Sailing,Summer,Team
-Swimming,Summer,Individual
-Table Tennis,Summer,Individual
-Water Polo,Summer,Team
-Weightlifting,Summer,Individual
-Wrestling,Summer,Individual
-Alpine Skiing,Summer,Individual
-Biathlon,Summer,Individual
+Ski Jumping,Winter,Individual
+Snowboard,Winter,Individual
+Speed Skating,Winter,Individual

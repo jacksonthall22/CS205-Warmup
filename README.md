@@ -24,3 +24,4 @@ Sport Fields:
 - type
 
 You can use these by saying field_name = "*info*"
+If you would like to select fields from both athlete and sport you should enter: select athlete field_name = "*info*" sport field_name = "*info*"
